@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowUp, ArrowDown, Calendar, FileText } from 'lucide-react';
+import { ArrowUp, ArrowDown, Calendar, FileText, Plus } from 'lucide-react';
 import { db, Transaction, Category, initializeDatabase } from '../services/database';
-import TransactionForm from './TransactionForm';
+import TransactionFormModal from './TransactionFormModal';
 import { toast } from 'sonner';
 
 const Dashboard: React.FC = () => {
@@ -11,10 +11,12 @@ const Dashboard: React.FC = () => {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [refreshTrigger]);
 
   const loadData = async () => {
     try {
@@ -57,8 +59,8 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleTransactionAdded = () => {
-    loadData();
+  const handleTransactionSaved = () => {
+    setRefreshTrigger(prev => prev + 1);
     toast.success('Transaksi berhasil ditambahkan!');
   };
 
@@ -122,16 +124,19 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Transaction Form */}
+        {/* Quick Add Transaction */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
             <FileText className="h-5 w-5 mr-2" />
-            Tambah Transaksi
+            Tambah Transaksi Cepat
           </h2>
-          <TransactionForm 
-            categories={categories}
-            onTransactionAdded={handleTransactionAdded}
-          />
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-emerald-600 hover:to-blue-700 transition-all duration-200 font-medium flex items-center justify-center space-x-2"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Tambah Transaksi Baru</span>
+          </button>
         </div>
 
         {/* Recent Transactions */}
@@ -174,6 +179,14 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Transaction Form Modal */}
+      <TransactionFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        categories={categories}
+        onTransactionSaved={handleTransactionSaved}
+      />
     </div>
   );
 };
