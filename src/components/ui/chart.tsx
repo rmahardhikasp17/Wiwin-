@@ -43,19 +43,9 @@ const ChartTooltip = React.forwardRef<
 })
 ChartTooltip.displayName = "ChartTooltip"
 
-interface ChartTooltipContentProps extends React.ComponentProps<"div"> {
-  active?: boolean
-  payload?: Array<{
-    name?: string
-    value?: any
-    color?: string
-  }>
-  label?: string
-}
-
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  ChartTooltipContentProps
+  TooltipProps<ValueType, NameType> & React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, active, payload, label, ...props }, ref) => {
   if (!active || !payload?.length) {
     return null
