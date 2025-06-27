@@ -1,6 +1,7 @@
 
 import * as React from "react"
-import { ResponsiveContainer } from 'recharts'
+import { ResponsiveContainer, TooltipProps } from 'recharts'
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
 import { cn } from "@/lib/utils"
 
@@ -42,13 +43,19 @@ const ChartTooltip = React.forwardRef<
 })
 ChartTooltip.displayName = "ChartTooltip"
 
+interface ChartTooltipContentProps extends React.ComponentProps<"div"> {
+  active?: boolean
+  payload?: Array<{
+    name?: string
+    value?: any
+    color?: string
+  }>
+  label?: string
+}
+
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> & {
-    active?: boolean
-    payload?: any[]
-    label?: string
-  }
+  ChartTooltipContentProps
 >(({ className, children, active, payload, label, ...props }, ref) => {
   if (!active || !payload?.length) {
     return null
@@ -66,7 +73,7 @@ const ChartTooltipContent = React.forwardRef<
         </div>
       )}
       <div className="grid gap-1">
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index) => (
           <div key={index} className="flex items-center gap-2 text-sm">
             <div
               className="h-2 w-2 rounded-full"
