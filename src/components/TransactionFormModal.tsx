@@ -47,7 +47,9 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
     }
   }, [editingTransaction, isOpen]);
 
-  const filteredCategories = categories.filter(cat => cat.type === formData.type);
+  const incomeCategories = categories.filter(cat => cat.type === 'income');
+  const expenseCategories = categories.filter(cat => cat.type === 'expense');
+  const currentCategories = formData.type === 'income' ? incomeCategories : expenseCategories;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,19 +164,48 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Kategori
             </label>
-            <select
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
-              required
-            >
-              <option value="">Pilih kategori</option>
-              {filteredCategories.map((category) => (
-                <option key={category.id} value={category.name}>
-                  {category.name}
+            <div className="space-y-2">
+              <div className="text-xs text-gray-500 font-medium">
+                {formData.type === 'income' ? 'KATEGORI PEMASUKAN' : 'KATEGORI PENGELUARAN'}
+              </div>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+                required
+              >
+                <option value="">
+                  {formData.type === 'income' ? 'Pilih kategori pemasukan' : 'Pilih kategori pengeluaran'}
                 </option>
-              ))}
-            </select>
+                {currentCategories.map((category) => (
+                  <option key={category.id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              
+              {currentCategories.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="text-xs font-medium text-gray-600 mb-2">
+                    {formData.type === 'income' ? 'Kategori Pemasukan Tersedia:' : 'Kategori Pengeluaran Tersedia:'}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {currentCategories.map((category) => (
+                      <span
+                        key={category.id}
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          formData.type === 'income' 
+                            ? 'bg-emerald-100 text-emerald-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {category.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
