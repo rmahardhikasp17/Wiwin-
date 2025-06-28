@@ -103,6 +103,23 @@ const TransactionList: React.FC<TransactionListProps> = ({ onEditTransaction, re
     });
   };
 
+  // Separate categories by type
+  const incomeCategories = categories.filter(cat => cat.type === 'income');
+  const expenseCategories = categories.filter(cat => cat.type === 'expense');
+  
+  // Get filtered categories based on selected type
+  const getFilteredCategories = () => {
+    if (filterType === 'income') return incomeCategories;
+    if (filterType === 'expense') return expenseCategories;
+    return categories; // Show all categories when type is 'all'
+  };
+
+  // Reset category filter when type changes
+  const handleTypeChange = (newType: 'all' | 'income' | 'expense') => {
+    setFilterType(newType);
+    setFilterCategory(''); // Reset category filter when type changes
+  };
+
   // Pagination
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -135,7 +152,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ onEditTransaction, re
           
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as 'all' | 'income' | 'expense')}
+            onChange={(e) => handleTypeChange(e.target.value as 'all' | 'income' | 'expense')}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
           >
             <option value="all">Semua Tipe</option>
@@ -143,18 +160,31 @@ const TransactionList: React.FC<TransactionListProps> = ({ onEditTransaction, re
             <option value="expense">Pengeluaran</option>
           </select>
 
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
-          >
-            <option value="">Semua Kategori</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.name}>
-                {category.name}
+          <div className="space-y-1">
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+            >
+              <option value="">
+                {filterType === 'all' ? 'Semua Kategori' : 
+                 filterType === 'income' ? 'Semua Kategori Pemasukan' : 
+                 'Semua Kategori Pengeluaran'}
               </option>
-            ))}
-          </select>
+              {getFilteredCategories().map((category) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            {filterType !== 'all' && (
+              <div className="text-xs text-gray-500">
+                {filterType === 'income' ? 
+                  `${incomeCategories.length} kategori pemasukan` : 
+                  `${expenseCategories.length} kategori pengeluaran`}
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center text-sm text-gray-600">
             <Filter className="h-4 w-4 mr-2" />
@@ -214,7 +244,11 @@ const TransactionList: React.FC<TransactionListProps> = ({ onEditTransaction, re
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        transaction.type === 'income' 
+                          ? 'bg-emerald-100 text-emerald-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
                         {transaction.category}
                       </span>
                     </td>
