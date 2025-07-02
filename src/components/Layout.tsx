@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -9,6 +8,7 @@ import {
   Settings,
   Calendar
 } from 'lucide-react';
+import FilterTanggalGlobal from './FilterTanggalGlobal';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -37,14 +37,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
               <h1 className="text-2xl font-bold text-white">Dompet Bergerak</h1>
             </div>
-            <div className="text-white/90 text-sm">
-              {new Date().toLocaleDateString('id-ID', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </div>
+            
+            {/* Filter Tanggal Global menggantikan elemen tanggal */}
+            <FilterTanggalGlobal />
           </div>
         </div>
       </header>
