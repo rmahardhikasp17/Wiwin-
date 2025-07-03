@@ -97,11 +97,17 @@ const Kategori: React.FC = () => {
     }
 
     try {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      
       const categoryData = {
         name: formData.name.trim(),
         type: formData.type,
         budgetLimit: formData.budgetLimit ? parseInt(formData.budgetLimit) : undefined,
         color: formData.color,
+        bulan: currentMonth,
+        tahun: currentYear,
         createdAt: new Date()
       };
 
