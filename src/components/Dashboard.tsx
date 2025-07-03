@@ -335,7 +335,6 @@ const Dashboard: React.FC = () => {
       <TransactionFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        categories={categories}
         onTransactionSaved={handleTransactionSaved}
       />
     </div>

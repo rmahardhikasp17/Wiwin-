@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Category, Transaction, db } from '../services/database';
+import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { toast } from 'sonner';
 
 interface TransactionFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  categories: Category[];
   onTransactionSaved: () => void;
   editingTransaction?: Transaction | null;
 }
@@ -15,10 +15,10 @@ interface TransactionFormModalProps {
 const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
   isOpen,
   onClose,
-  categories,
   onTransactionSaved,
   editingTransaction
 }) => {
+  const { categories, loading: categoriesLoading } = useKategoriByPeriode();
   const [formData, setFormData] = useState({
     type: 'expense' as 'income' | 'expense',
     amount: '',

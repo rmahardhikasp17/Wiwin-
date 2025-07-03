@@ -68,7 +68,6 @@ const Transaksi: React.FC = () => {
       <TransactionFormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        categories={categories}
         onTransactionSaved={handleTransactionSaved}
         editingTransaction={editingTransaction}
       />
