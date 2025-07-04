@@ -1,7 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { ArrowUp, ArrowDown, Calendar, FileText, Plus, TrendingUp, AlertTriangle } from 'lucide-react';
-import { db, Transaction, Category, initializeDatabase } from '../services/database';
+import { Transaction, Category } from '../services/database';
+import { useTransactionsByPeriode } from '../hooks/useTransactionsByPeriode';
+import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
+import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
 import TransactionFormModal from './TransactionFormModal';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -23,8 +26,11 @@ interface CategoryBudget {
 }
 
 const Dashboard: React.FC = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { transactions: allTransactions, getBalance } = useTransactionsByPeriode();
+  const { categories } = useKategoriByPeriode();
+  const { getFormattedSelection } = useDateFilterHelper();
+  
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,36 +41,22 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, allTransactions, categories]);
 
   const loadData = async () => {
     try {
-      await initializeDatabase();
-      const [transactionData, categoryData] = await Promise.all([
-        db.transactions.orderBy('createdAt').reverse().limit(5).toArray(),
-        db.categories.toArray()
-      ]);
+      setIsLoading(true);
 
-      setTransactions(transactionData);
-      setCategories(categoryData);
+      // Get recent transactions (limit 5)
+      const recentTrans = allTransactions.slice(0, 5);
+      setRecentTransactions(recentTrans);
 
-      // Calculate totals for current month
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      
-      const monthlyTransactions = await db.transactions
-        .filter(t => {
-          const transactionDate = new Date(t.date);
-          return transactionDate.getMonth() === currentMonth && 
-                 transactionDate.getFullYear() === currentYear;
-        })
-        .toArray();
-
-      const income = monthlyTransactions
+      // Calculate totals for current period
+      const income = allTransactions
         .filter(t => t.type === 'income')
         .reduce((sum, t) => sum + t.amount, 0);
       
-      const expense = monthlyTransactions
+      const expense = allTransactions
         .filter(t => t.type === 'expense')
         .reduce((sum, t) => sum + t.amount, 0);
 
@@ -72,11 +64,11 @@ const Dashboard: React.FC = () => {
       setTotalExpense(expense);
 
       // Generate daily data for the last 7 days
-      const last7Days = generateLast7DaysData(monthlyTransactions);
+      const last7Days = generateLast7DaysData(allTransactions);
       setDailyData(last7Days);
 
       // Calculate category budgets
-      const budgetData = await calculateCategoryBudgets(categoryData, monthlyTransactions);
+      const budgetData = await calculateCategoryBudgets(categories, allTransactions);
       setCategoryBudgets(budgetData);
 
     } catch (error) {
@@ -165,7 +157,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-emerald-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Pemasukan Bulan Ini</p>
+              <p className="text-sm font-medium text-gray-600">Pemasukan {getFormattedSelection()}</p>
               <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalIncome)}</p>
             </div>
             <div className="bg-emerald-100 p-3 rounded-full">
@@ -177,7 +169,7 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-red-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Pengeluaran Bulan Ini</p>
+              <p className="text-sm font-medium text-gray-600">Pengeluaran {getFormattedSelection()}</p>
               <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalExpense)}</p>
             </div>
             <div className="bg-red-100 p-3 rounded-full">
@@ -294,10 +286,10 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Transaksi Terbaru</h2>
           <div className="space-y-4">
-            {transactions.length === 0 ? (
+            {recentTransactions.length === 0 ? (
               <p className="text-gray-500 text-center py-8">Belum ada transaksi</p>
             ) : (
-              transactions.map((transaction) => (
+              recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-full ${

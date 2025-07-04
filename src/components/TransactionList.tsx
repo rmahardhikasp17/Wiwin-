@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Edit, Trash2, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
-import { Transaction, db } from '../services/database';
+import { Transaction } from '../services/database';
+import { useTransactionsByPeriode } from '../hooks/useTransactionsByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
 import {
   DropdownMenu,
@@ -20,46 +21,17 @@ const TransactionList: React.FC<TransactionListProps> = ({
   onEditTransaction, 
   refreshTrigger 
 }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { isDateInRange, getFormattedSelection } = useDateFilterHelper();
+  const { transactions, loading, loadTransactions, deleteTransaction } = useTransactionsByPeriode();
+  const { getFormattedSelection } = useDateFilterHelper();
 
-  useEffect(() => {
+  // Reload when refreshTrigger changes
+  React.useEffect(() => {
     loadTransactions();
-  }, [refreshTrigger]);
-
-  const loadTransactions = async () => {
-    try {
-      setLoading(true);
-      const allTransactions = await db.transactions.orderBy('date').reverse().toArray();
-      
-      // Filter transactions based on global date filter
-      const filteredTransactions = allTransactions.filter(transaction => 
-        isDateInRange(transaction.date)
-      );
-      
-      setTransactions(filteredTransactions);
-    } catch (error) {
-      console.error('Error loading transactions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Reload when date filter changes
-  useEffect(() => {
-    loadTransactions();
-  }, [isDateInRange]);
+  }, [refreshTrigger, loadTransactions]);
 
   const handleDelete = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return;
-    
-    try {
-      await db.transactions.delete(id);
-      loadTransactions();
-    } catch (error) {
-      console.error('Error deleting transaction:', error);
-    }
+    await deleteTransaction(id);
   };
 
   const formatCurrency = (amount: number) => {

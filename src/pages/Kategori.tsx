@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
-import { db, Category, Transaction } from '../services/database';
+import { db, Category } from '../services/database';
+import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
+import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,8 +18,9 @@ interface CategoryWithSpending extends Category {
 }
 
 const Kategori: React.FC = () => {
+  const { categories: rawCategories, loading, addCategory, updateCategory, deleteCategory: removeCategory, getCategorySpending } = useKategoriByPeriode();
+  const { bulan, tahun, getFormattedSelection } = useDateFilterHelper();
   const [categories, setCategories] = useState<CategoryWithSpending[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   
@@ -41,50 +44,35 @@ const Kategori: React.FC = () => {
   ];
 
   useEffect(() => {
-    loadCategories();
-  }, []);
+    loadCategoriesWithSpending();
+  }, [rawCategories, bulan, tahun]);
 
-  const loadCategories = async () => {
+  const loadCategoriesWithSpending = async () => {
+    if (!rawCategories) return;
+
     try {
-      const categoryData = await db.categories.toArray();
-      
-      // Calculate current spending for each category
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      
-      const monthlyTransactions = await db.transactions
-        .filter(t => {
-          const transactionDate = new Date(t.date);
-          return transactionDate.getMonth() === currentMonth && 
-                 transactionDate.getFullYear() === currentYear;
+      const categoriesWithSpending = await Promise.all(
+        rawCategories.map(async (category) => {
+          const spending = await getCategorySpending(category.name);
+          const percentage = category.budgetLimit ? (spending / category.budgetLimit) * 100 : 0;
+          let status: 'safe' | 'warning' | 'over' = 'safe';
+          
+          if (percentage >= 100) status = 'over';
+          else if (percentage >= 80) status = 'warning';
+          
+          return {
+            ...category,
+            currentSpending: spending,
+            percentage: Math.min(percentage, 100),
+            status
+          };
         })
-        .toArray();
-
-      const categoriesWithSpending = categoryData.map(category => {
-        const spending = monthlyTransactions
-          .filter(t => t.category === category.name && t.type === 'expense')
-          .reduce((sum, t) => sum + t.amount, 0);
-        
-        const percentage = category.budgetLimit ? (spending / category.budgetLimit) * 100 : 0;
-        let status: 'safe' | 'warning' | 'over' = 'safe';
-        
-        if (percentage >= 100) status = 'over';
-        else if (percentage >= 80) status = 'warning';
-        
-        return {
-          ...category,
-          currentSpending: spending,
-          percentage: Math.min(percentage, 100),
-          status
-        };
-      });
+      );
 
       setCategories(categoriesWithSpending);
     } catch (error) {
-      console.error('Error loading categories:', error);
-      toast.error('Gagal memuat kategori');
-    } finally {
-      setIsLoading(false);
+      console.error('Error loading categories with spending:', error);
+      toast.error('Gagal memuat data kategori');
     }
   };
 
@@ -97,30 +85,20 @@ const Kategori: React.FC = () => {
     }
 
     try {
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1;
-      const currentYear = currentDate.getFullYear();
-      
       const categoryData = {
         name: formData.name.trim(),
         type: formData.type,
         budgetLimit: formData.budgetLimit ? parseInt(formData.budgetLimit) : undefined,
-        color: formData.color,
-        bulan: currentMonth,
-        tahun: currentYear,
-        createdAt: new Date()
+        color: formData.color
       };
 
       if (editingCategory) {
-        await db.categories.update(editingCategory.id!, categoryData);
-        toast.success('Kategori berhasil diperbarui');
+        await updateCategory(editingCategory.id!, categoryData);
       } else {
-        await db.categories.add(categoryData);
-        toast.success('Kategori berhasil ditambahkan');
+        await addCategory(categoryData);
       }
 
       resetForm();
-      loadCategories();
     } catch (error) {
       console.error('Error saving category:', error);
       toast.error('Gagal menyimpan kategori');
@@ -140,15 +118,7 @@ const Kategori: React.FC = () => {
 
   const handleDelete = async (categoryId: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus kategori ini?')) return;
-
-    try {
-      await db.categories.delete(categoryId);
-      toast.success('Kategori berhasil dihapus');
-      loadCategories();
-    } catch (error) {
-      console.error('Error deleting category:', error);
-      toast.error('Gagal menghapus kategori');
-    }
+    await removeCategory(categoryId);
   };
 
   const resetForm = () => {
@@ -196,7 +166,7 @@ const Kategori: React.FC = () => {
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
@@ -206,9 +176,12 @@ const Kategori: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Kelola Kategori</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Kelola Kategori</h1>
+            <p className="text-gray-600 mt-1">Periode: {getFormattedSelection()}</p>
+          </div>
           <Button
             onClick={() => setShowForm(!showForm)}
             className="bg-emerald-500 hover:bg-emerald-600"
