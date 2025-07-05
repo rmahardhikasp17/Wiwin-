@@ -32,34 +32,39 @@ const FilterTanggalGlobal: React.FC = () => {
   const years = Array.from({ length: 16 }, (_, i) => 2020 + i);
 
   return (
-    <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-      <Calendar className="h-4 w-4 text-white/80" />
-      
-      <Select value={bulan.toString()} onValueChange={(value) => setBulan(Number(value))}>
-        <SelectTrigger className="w-32 h-8 border-white/20 bg-white/10 text-white text-sm focus:ring-white/30">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="bg-white border border-gray-200">
-          {months.map((month) => (
-            <SelectItem key={month.value} value={month.value.toString()}>
-              {month.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 w-full sm:w-auto">
+      <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto">
+        <Calendar className="h-4 w-4 text-white/80 flex-shrink-0" />
+        
+        <div className="flex space-x-2 flex-1 sm:flex-initial">
+          <Select value={bulan.toString()} onValueChange={(value) => setBulan(Number(value))}>
+            <SelectTrigger className="flex-1 sm:w-28 lg:w-32 h-8 border-white/20 bg-white/10 text-white text-sm focus:ring-white/30">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white border border-gray-200">
+              {months.map((month) => (
+                <SelectItem key={month.value} value={month.value.toString()}>
+                  <span className="block sm:hidden">{month.label.substring(0, 3)}</span>
+                  <span className="hidden sm:block">{month.label}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-      <Select value={tahun.toString()} onValueChange={(value) => setTahun(Number(value))}>
-        <SelectTrigger className="w-20 h-8 border-white/20 bg-white/10 text-white text-sm focus:ring-white/30">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="bg-white border border-gray-200">
-          {years.map((year) => (
-            <SelectItem key={year} value={year.toString()}>
-              {year}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          <Select value={tahun.toString()} onValueChange={(value) => setTahun(Number(value))}>
+            <SelectTrigger className="w-16 sm:w-20 h-8 border-white/20 bg-white/10 text-white text-sm focus:ring-white/30">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white border border-gray-200">
+              {years.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
     </div>
   );
 };

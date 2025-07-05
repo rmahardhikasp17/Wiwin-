@@ -5,6 +5,7 @@ import { Transaction, Category } from '../services/database';
 import { useTransactionsByPeriode } from '../hooks/useTransactionsByPeriode';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
+import { formatCurrency } from '../utils/formatCurrency';
 import TransactionFormModal from './TransactionFormModal';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -128,13 +129,6 @@ const Dashboard: React.FC = () => {
     toast.success('Transaksi berhasil ditambahkan!');
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
 
   const getBudgetStatus = (percentage: number) => {
     if (percentage >= 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Melebihi batas!' };

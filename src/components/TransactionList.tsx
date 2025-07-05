@@ -4,6 +4,7 @@ import { Edit, Trash2, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
 import { Transaction } from '../services/database';
 import { useTransactionsByPeriode } from '../hooks/useTransactionsByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
+import { formatCurrency } from '../utils/formatCurrency';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,14 +33,6 @@ const TransactionList: React.FC<TransactionListProps> = ({
   const handleDelete = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return;
     await deleteTransaction(id);
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   const formatDate = (dateString: string) => {

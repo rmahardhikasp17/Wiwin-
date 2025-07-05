@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { Category, Transaction, db } from '../services/database';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { toast } from 'sonner';
+import { formatInputNumber, parseNumber } from '../utils/formatCurrency';
 
 interface TransactionFormModalProps {
   isOpen: boolean;
@@ -31,7 +32,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
     if (editingTransaction) {
       setFormData({
         type: editingTransaction.type,
-        amount: editingTransaction.amount.toString(),
+        amount: formatInputNumber(editingTransaction.amount.toString()),
         description: editingTransaction.description,
         category: editingTransaction.category,
         date: editingTransaction.date
@@ -59,7 +60,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
       return;
     }
 
-    const amount = parseFloat(formData.amount);
+    const amount = parseNumber(formData.amount);
     if (amount <= 0) {
       toast.error('Jumlah harus lebih dari 0');
       return;
@@ -137,9 +138,12 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
               Jumlah (Rp)
             </label>
             <input
-              type="number"
+              type="text"
               value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              onChange={(e) => {
+                const formatted = formatInputNumber(e.target.value);
+                setFormData({ ...formData, amount: formatted });
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
               placeholder="0"
               required

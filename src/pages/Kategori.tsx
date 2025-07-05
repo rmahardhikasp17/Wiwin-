@@ -4,6 +4,7 @@ import { Plus, Edit, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
 import { db, Category } from '../services/database';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
+import { formatCurrency, formatInputNumber, parseNumber } from '../utils/formatCurrency';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -88,7 +89,7 @@ const Kategori: React.FC = () => {
       const categoryData = {
         name: formData.name.trim(),
         type: formData.type,
-        budgetLimit: formData.budgetLimit ? parseInt(formData.budgetLimit) : undefined,
+        budgetLimit: formData.budgetLimit ? parseNumber(formData.budgetLimit) : undefined,
         color: formData.color
       };
 
@@ -110,7 +111,7 @@ const Kategori: React.FC = () => {
     setFormData({
       name: category.name,
       type: category.type,
-      budgetLimit: category.budgetLimit?.toString() || '',
+      budgetLimit: category.budgetLimit ? formatInputNumber(category.budgetLimit.toString()) : '',
       color: category.color
     });
     setShowForm(true);
@@ -132,13 +133,6 @@ const Kategori: React.FC = () => {
     setShowForm(false);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -227,10 +221,13 @@ const Kategori: React.FC = () => {
                 <Label htmlFor="budgetLimit">Batas Anggaran (Opsional)</Label>
                 <Input
                   id="budgetLimit"
-                  type="number"
+                  type="text"
                   value={formData.budgetLimit}
-                  onChange={(e) => setFormData({...formData, budgetLimit: e.target.value})}
-                  placeholder="Contoh: 500000"
+                  onChange={(e) => {
+                    const formatted = formatInputNumber(e.target.value);
+                    setFormData({...formData, budgetLimit: formatted});
+                  }}
+                  placeholder="Contoh: 500.000"
                 />
               </div>
 
