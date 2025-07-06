@@ -6,6 +6,7 @@ import { useTransactionsByPeriode } from '../hooks/useTransactionsByPeriode';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
 import { formatCurrency } from '../utils/formatCurrency';
+import { useTargetProgress } from '@/hooks/useTargetProgress';
 import TransactionFormModal from './TransactionFormModal';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -30,6 +31,7 @@ const Dashboard: React.FC = () => {
   const { transactions: allTransactions, getBalance } = useTransactionsByPeriode();
   const { categories } = useKategoriByPeriode();
   const { getFormattedSelection } = useDateFilterHelper();
+  const { getActiveTargetProgress } = useTargetProgress();
   
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [totalIncome, setTotalIncome] = useState(0);
@@ -211,6 +213,39 @@ const Dashboard: React.FC = () => {
             </ResponsiveContainer>
           </div>
         </div>
+
+        {/* Target Progress (if any active targets) */}
+        {getActiveTargetProgress().length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+              <TrendingUp className="h-5 w-5 mr-2" />
+              Target Tabungan Aktif
+            </h2>
+            <div className="space-y-4">
+              {getActiveTargetProgress().slice(0, 3).map((tp) => (
+                <div key={tp.target.id} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="font-medium text-gray-900">{tp.target.nama}</span>
+                      <p className="text-xs text-gray-500">
+                        Target: {formatCurrency(tp.target.nominalTarget)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-emerald-600">
+                        {tp.percentage.toFixed(0)}%
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatCurrency(tp.progress)}
+                      </p>
+                    </div>
+                  </div>
+                  <Progress value={tp.percentage} className="h-2" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Budget Progress */}
         <div className="bg-white rounded-xl shadow-sm p-6">

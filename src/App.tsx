@@ -9,6 +9,7 @@ import Transaksi from "./pages/Transaksi";
 import Kategori from "./pages/Kategori";
 import Laporan from "./pages/Laporan";
 import Pengaturan from "./pages/Pengaturan";
+import Target from "./pages/Target";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
@@ -44,6 +45,11 @@ const App = () => (
           <Route path="/pengaturan" element={
             <Layout>
               <Pengaturan />
+            </Layout>
+          } />
+          <Route path="/target" element={
+            <Layout>
+              <Target />
             </Layout>
           } />
           <Route path="*" element={<NotFound />} />

@@ -292,17 +292,15 @@ const Pengaturan: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* App Info */}
+      {/* App Info - Minimized */}
       <Card>
         <CardHeader>
           <CardTitle>Informasi Aplikasi</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm text-gray-600">
-            <p><strong>Nama:</strong> Dompet Bergerak</p>
-            <p><strong>Versi:</strong> 1.0.0</p>
-            <p><strong>Penyimpanan:</strong> Browser (IndexedDB)</p>
-            <p><strong>Catatan:</strong> Data disimpan secara lokal di perangkat Anda</p>
+            <p><strong>Gaji-Ku</strong> - Aplikasi Manajemen Keuangan Pribadi</p>
+            <p className="text-xs">Data disimpan secara lokal dan aman di perangkat Anda</p>
           </div>
         </CardContent>
       </Card>
