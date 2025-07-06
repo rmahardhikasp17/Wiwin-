@@ -1,18 +1,21 @@
-
 import React, { useState, useEffect } from 'react';
 import { Calendar, TrendingUp, TrendingDown, AlertCircle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
-import { db, Transaction, Category } from '@/services/database';
+import { useDateFilterHelper } from '@/hooks/useDateFilterHelper';
+import { useTransactionsByPeriode } from '@/hooks/useTransactionsByPeriode';
+import { useKategoriByPeriode } from '@/hooks/useKategoriByPeriode';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { db } from '@/services/database';
 
 interface MonthlyData {
   month: string;
   income: number;
   expense: number;
+  balance: number;
 }
 
 interface CategoryUsage {
@@ -27,49 +30,45 @@ interface CategoryUsage {
 }
 
 const Laporan: React.FC = () => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { bulan, tahun, getMonthName } = useDateFilterHelper();
+  const { transactions } = useTransactionsByPeriode();
+  const { categories } = useKategoriByPeriode();
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [categoryUsage, setCategoryUsage] = useState<CategoryUsage[]>([]);
-  const [totalIncome, setTotalIncome] = useState(0);
-  const [totalExpense, setTotalExpense] = useState(0);
 
   const months = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
   ];
 
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
-
   const pieColors = ['#10B981', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4'];
 
-  useEffect(() => {
-    loadData();
-  }, [selectedMonth, selectedYear]);
+  // Calculate totals from current period transactions
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const totalExpense = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
 
-  const loadData = async () => {
+  const totalBalance = totalIncome - totalExpense;
+
+  useEffect(() => {
+    loadYearlyData();
+    calculateCategoryUsage();
+  }, [bulan, tahun, transactions, categories]);
+
+  const loadYearlyData = async () => {
     try {
       const allTransactions = await db.transactions.toArray();
-      const allCategories = await db.categories.toArray();
       
-      // Filter transactions for selected month/year
-      const filteredTransactions = allTransactions.filter(transaction => {
-        const transactionDate = new Date(transaction.date);
-        return transactionDate.getMonth() === selectedMonth && 
-               transactionDate.getFullYear() === selectedYear;
-      });
-
-      setTransactions(filteredTransactions);
-      setCategories(allCategories);
-
-      // Calculate monthly data for chart
+      // Calculate monthly data for chart (entire year)
       const monthlyStats: MonthlyData[] = [];
       for (let i = 0; i < 12; i++) {
         const monthTransactions = allTransactions.filter(t => {
           const date = new Date(t.date);
-          return date.getMonth() === i && date.getFullYear() === selectedYear;
+          return date.getMonth() === i && date.getFullYear() === tahun;
         });
 
         const income = monthTransactions
@@ -80,61 +79,45 @@ const Laporan: React.FC = () => {
           .filter(t => t.type === 'expense')
           .reduce((sum, t) => sum + t.amount, 0);
 
+        const balance = income - expense;
+
         monthlyStats.push({
           month: months[i].substring(0, 3),
           income,
-          expense
+          expense,
+          balance
         });
       }
       setMonthlyData(monthlyStats);
-
-      // Calculate totals for selected month
-      const monthIncome = filteredTransactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + t.amount, 0);
-      
-      const monthExpense = filteredTransactions
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0);
-
-      setTotalIncome(monthIncome);
-      setTotalExpense(monthExpense);
-
-      // Calculate category usage
-      const categoryStats: CategoryUsage[] = allCategories.map((category, index) => {
-        const categoryTransactions = filteredTransactions.filter(t => t.category === category.name);
-        const totalAmount = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
-        const totalForType = filteredTransactions
-          .filter(t => t.type === category.type)
-          .reduce((sum, t) => sum + t.amount, 0);
-        
-        const percentage = totalForType > 0 ? (totalAmount / totalForType) * 100 : 0;
-        const isOverBudget = category.budgetLimit ? totalAmount > category.budgetLimit : false;
-
-        return {
-          id: category.id || 0,
-          name: category.name,
-          type: category.type,
-          totalAmount,
-          budgetLimit: category.budgetLimit,
-          percentage,
-          isOverBudget,
-          color: category.color || pieColors[index % pieColors.length]
-        };
-      }).filter(stat => stat.totalAmount > 0);
-
-      setCategoryUsage(categoryStats);
     } catch (error) {
-      console.error('Error loading report data:', error);
+      console.error('Error loading yearly data:', error);
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(amount);
+  const calculateCategoryUsage = () => {
+    const categoryStats: CategoryUsage[] = categories.map((category, index) => {
+      const categoryTransactions = transactions.filter(t => t.category === category.name);
+      const totalAmount = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const totalForType = transactions
+        .filter(t => t.type === category.type)
+        .reduce((sum, t) => sum + t.amount, 0);
+      
+      const percentage = totalForType > 0 ? (totalAmount / totalForType) * 100 : 0;
+      const isOverBudget = category.budgetLimit ? totalAmount > category.budgetLimit : false;
+
+      return {
+        id: category.id || 0,
+        name: category.name,
+        type: category.type,
+        totalAmount,
+        budgetLimit: category.budgetLimit,
+        percentage,
+        isOverBudget,
+        color: category.color || pieColors[index % pieColors.length]
+      };
+    }).filter(stat => stat.totalAmount > 0);
+
+    setCategoryUsage(categoryStats);
   };
 
   const pieData = [
@@ -148,36 +131,9 @@ const Laporan: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Laporan Keuangan</h1>
-          <p className="text-gray-600 mt-1">Visualisasi dan analisis laporan keuangan Anda</p>
-        </div>
-        
-        {/* Month/Year Filter */}
-        <div className="flex gap-2">
-          <Select value={selectedMonth.toString()} onValueChange={(value) => setSelectedMonth(parseInt(value))}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month, index) => (
-                <SelectItem key={index} value={index.toString()}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
-            <SelectTrigger className="w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map(year => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <p className="text-gray-600 mt-1">
+            Visualisasi dan analisis laporan untuk {getMonthName(bulan)} {tahun}
+          </p>
         </div>
       </div>
 
@@ -209,8 +165,8 @@ const Laporan: React.FC = () => {
             <Calendar className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${totalIncome - totalExpense >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatCurrency(totalIncome - totalExpense)}
+            <div className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {formatCurrency(totalBalance)}
             </div>
           </CardContent>
         </Card>
@@ -218,11 +174,11 @@ const Laporan: React.FC = () => {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bar Chart */}
+        {/* Bar Chart with Balance */}
         <Card>
           <CardHeader>
-            <CardTitle>Grafik Bulanan {selectedYear}</CardTitle>
-            <CardDescription>Perbandingan pemasukan dan pengeluaran per bulan</CardDescription>
+            <CardTitle>Grafik Bulanan {tahun}</CardTitle>
+            <CardDescription>Perbandingan pemasukan, pengeluaran, dan saldo per bulan</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer className="h-80">
@@ -231,9 +187,21 @@ const Laporan: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis tickFormatter={(value) => `${value / 1000}K`} />
-                  <Tooltip content={<ChartTooltipContent />} />
+                  <Tooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value: number, name: string) => [
+                      formatCurrency(value),
+                      name === 'income' ? 'Pemasukan' : 
+                      name === 'expense' ? 'Pengeluaran' : 'Saldo'
+                    ]}
+                  />
                   <Bar dataKey="income" fill="#10B981" name="Pemasukan" />
                   <Bar dataKey="expense" fill="#EF4444" name="Pengeluaran" />
+                  <Bar 
+                    dataKey="balance" 
+                    fill="#3B82F6" 
+                    name="Saldo"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -243,7 +211,7 @@ const Laporan: React.FC = () => {
         {/* Pie Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Distribusi {months[selectedMonth]} {selectedYear}</CardTitle>
+            <CardTitle>Distribusi {getMonthName(bulan)} {tahun}</CardTitle>
             <CardDescription>Perbandingan total pemasukan vs pengeluaran</CardDescription>
           </CardHeader>
           <CardContent>
@@ -262,7 +230,10 @@ const Laporan: React.FC = () => {
                       <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                   </Pie>
-                  <Tooltip content={<ChartTooltipContent />} />
+                  <Tooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value: number) => [formatCurrency(value)]}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -275,7 +246,7 @@ const Laporan: React.FC = () => {
         <CardHeader>
           <CardTitle>Rincian Penggunaan Kategori</CardTitle>
           <CardDescription>
-            Detail penggunaan per kategori untuk {months[selectedMonth]} {selectedYear}
+            Detail penggunaan per kategori untuk {getMonthName(bulan)} {tahun}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -355,7 +326,7 @@ const Laporan: React.FC = () => {
           ) : (
             <div className="text-center py-8 text-gray-500">
               <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>Tidak ada data transaksi untuk bulan ini</p>
+              <p>Tidak ada data transaksi untuk periode ini</p>
             </div>
           )}
         </CardContent>
