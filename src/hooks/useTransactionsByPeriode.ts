@@ -21,8 +21,10 @@ export const useTransactionsByPeriode = () => {
           return transactionDate.getMonth() + 1 === bulan && 
                  transactionDate.getFullYear() === tahun;
         })
-        .reverse() // Show newest first
         .toArray();
+      
+      // Sort by date (newest first)
+      transactionsFromDb.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
       setTransactions(transactionsFromDb);
     } catch (err) {

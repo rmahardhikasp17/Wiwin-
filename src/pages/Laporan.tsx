@@ -5,11 +5,15 @@ import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { useDateFilterHelper } from '@/hooks/useDateFilterHelper';
 import { useTransactionsByPeriode } from '@/hooks/useTransactionsByPeriode';
 import { useKategoriByPeriode } from '@/hooks/useKategoriByPeriode';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { db } from '@/services/database';
+import TransactionTable from '@/components/TransactionTable';
+import { exportToPDF } from '@/utils/exportPDF';
+import { FileDown } from 'lucide-react';
 
 interface MonthlyData {
   month: string;
@@ -120,6 +124,24 @@ const Laporan: React.FC = () => {
     setCategoryUsage(categoryStats);
   };
 
+  const handleExportPDF = async () => {
+    const exportData = {
+      periode: `${getMonthName(bulan)} ${tahun}`,
+      totalIncome,
+      totalExpense,
+      totalBalance,
+      transactions,
+      categoryUsage: categoryUsage.map(cat => ({
+        name: cat.name,
+        type: cat.type,
+        totalAmount: cat.totalAmount,
+        percentage: cat.percentage
+      }))
+    };
+    
+    await exportToPDF(exportData);
+  };
+
   const pieData = [
     { name: 'Pemasukan', value: totalIncome, fill: '#10B981' },
     { name: 'Pengeluaran', value: totalExpense, fill: '#EF4444' }
@@ -135,6 +157,10 @@ const Laporan: React.FC = () => {
             Visualisasi dan analisis laporan untuk {getMonthName(bulan)} {tahun}
           </p>
         </div>
+        <Button onClick={handleExportPDF} className="flex items-center gap-2">
+          <FileDown className="h-4 w-4" />
+          Export PDF
+        </Button>
       </div>
 
       {/* Summary Cards */}
@@ -329,6 +355,19 @@ const Laporan: React.FC = () => {
               <p>Tidak ada data transaksi untuk periode ini</p>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Transaction List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Daftar Transaksi</CardTitle>
+          <CardDescription>
+            Semua transaksi untuk {getMonthName(bulan)} {tahun} ({transactions.length} transaksi)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TransactionTable transactions={transactions} />
         </CardContent>
       </Card>
     </div>
