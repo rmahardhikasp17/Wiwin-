@@ -19,8 +19,8 @@ export const useTargetProgress = () => {
     const progressData: TargetProgress[] = [];
     
     for (const target of targets) {
-      // Get all income transactions within target period
-      const allTransactions = await db.transactions
+      // Get all target-specific transactions within target period
+      const targetTransactions = await db.transactions
         .filter(transaction => {
           const transactionDate = new Date(transaction.date);
           const transactionMonth = transactionDate.getMonth() + 1;
@@ -30,14 +30,15 @@ export const useTargetProgress = () => {
           const endDate = new Date(target.tahunSelesai, target.bulanSelesai - 1, 31);
           const transDate = new Date(transactionYear, transactionMonth - 1, 1);
           
-          return transaction.type === 'income' && 
+          return transaction.type === 'transfer_to_target' && 
+                 transaction.targetId === target.id &&
                  transDate >= startDate && 
                  transDate <= endDate;
         })
         .toArray();
       
-      const totalIncome = allTransactions.reduce((sum, t) => sum + t.amount, 0);
-      const progress = Math.min(totalIncome, target.nominalTarget);
+      const totalSaved = targetTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const progress = Math.min(totalSaved, target.nominalTarget);
       const percentage = (progress / target.nominalTarget) * 100;
       const remainingAmount = Math.max(0, target.nominalTarget - progress);
       

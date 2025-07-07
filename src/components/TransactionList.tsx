@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { Edit, Trash2, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
+import { Edit, Trash2, Calendar, TrendingUp, TrendingDown, Target } from 'lucide-react';
 import { Transaction } from '../services/database';
 import { useTransactionsByPeriode } from '../hooks/useTransactionsByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
+import { useTarget } from '../hooks/useTarget';
 import { formatCurrency } from '../utils/formatCurrency';
 import {
   DropdownMenu,
@@ -24,6 +25,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
 }) => {
   const { transactions, loading, loadTransactions, deleteTransaction } = useTransactionsByPeriode();
   const { getFormattedSelection } = useDateFilterHelper();
+  const { targets } = useTarget();
 
   // Reload when refreshTrigger changes
   React.useEffect(() => {
@@ -41,6 +43,12 @@ const TransactionList: React.FC<TransactionListProps> = ({
       month: 'short',
       year: 'numeric',
     });
+  };
+
+  const getTargetName = (targetId?: number) => {
+    if (!targetId) return '';
+    const target = targets.find(t => t.id === targetId);
+    return target?.nama || `Target #${targetId}`;
   };
 
   if (loading) {
@@ -90,10 +98,14 @@ const TransactionList: React.FC<TransactionListProps> = ({
                   <div className={`p-2 rounded-lg ${
                     transaction.type === 'income' 
                       ? 'bg-emerald-100 text-emerald-600' 
+                      : transaction.type === 'transfer_to_target'
+                      ? 'bg-blue-100 text-blue-600'
                       : 'bg-red-100 text-red-600'
                   }`}>
                     {transaction.type === 'income' ? (
                       <TrendingUp className="h-5 w-5" />
+                    ) : transaction.type === 'transfer_to_target' ? (
+                      <Target className="h-5 w-5" />
                     ) : (
                       <TrendingDown className="h-5 w-5" />
                     )}
@@ -102,7 +114,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
                   <div>
                     <h3 className="font-medium text-gray-900">{transaction.description}</h3>
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <span>{transaction.category}</span>
+                      {transaction.type === 'transfer_to_target' ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          🎯 Target: {getTargetName(transaction.targetId)}
+                        </span>
+                      ) : (
+                        <span>{transaction.category}</span>
+                      )}
                       <span>•</span>
                       <span>{formatDate(transaction.date)}</span>
                     </div>
@@ -113,9 +131,11 @@ const TransactionList: React.FC<TransactionListProps> = ({
                   <span className={`font-semibold ${
                     transaction.type === 'income' 
                       ? 'text-emerald-600' 
+                      : transaction.type === 'transfer_to_target'
+                      ? 'text-blue-600'
                       : 'text-red-600'
                   }`}>
-                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                    {transaction.type === 'income' ? '+' : transaction.type === 'transfer_to_target' ? '🎯' : '-'}{formatCurrency(transaction.amount)}
                   </span>
 
                   <DropdownMenu>

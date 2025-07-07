@@ -3,11 +3,12 @@ import Dexie, { Table } from 'dexie';
 
 export interface Transaction {
   id?: number;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'transfer_to_target';
   amount: number;
   description: string;
   category: string;
   date: string;
+  targetId?: number;
   createdAt: Date;
 }
 
@@ -69,6 +70,14 @@ export class DompetDatabase extends Dexie {
         category.bulan = currentMonth;
         category.tahun = currentYear;
       });
+    });
+
+    // Version 3 - Add targetId to transactions for target savings
+    this.version(3).stores({
+      transactions: '++id, type, amount, description, category, date, targetId, createdAt',
+      categories: '++id, name, type, budgetLimit, color, bulan, tahun, createdAt, [bulan+tahun]',
+      targets: '++id, nama, nominalTarget, bulanMulai, tahunMulai, bulanSelesai, tahunSelesai, createdAt',
+      settings: '++id, key, value'
     });
   }
 }

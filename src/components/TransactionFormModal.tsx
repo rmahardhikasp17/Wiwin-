@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Category, Transaction, db } from '../services/database';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
+import { useActiveTargets } from '../hooks/useActiveTargets';
 import { toast } from 'sonner';
 import { formatInputNumber, parseNumber } from '../utils/formatCurrency';
 
@@ -20,11 +21,13 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
   editingTransaction
 }) => {
   const { categories, loading: categoriesLoading } = useKategoriByPeriode();
+  const { activeTargets, loading: targetsLoading } = useActiveTargets();
   const [formData, setFormData] = useState({
-    type: 'expense' as 'income' | 'expense',
+    type: 'expense' as 'income' | 'expense' | 'transfer_to_target',
     amount: '',
     description: '',
     category: '',
+    targetId: '',
     date: new Date().toISOString().split('T')[0]
   });
 
@@ -35,6 +38,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         amount: formatInputNumber(editingTransaction.amount.toString()),
         description: editingTransaction.description,
         category: editingTransaction.category,
+        targetId: editingTransaction.targetId?.toString() || '',
         date: editingTransaction.date
       });
     } else {
@@ -43,6 +47,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         amount: '',
         description: '',
         category: '',
+        targetId: '',
         date: new Date().toISOString().split('T')[0]
       });
     }
@@ -55,9 +60,17 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.amount || !formData.description || !formData.category) {
-      toast.error('Semua field harus diisi');
-      return;
+    // Different validation for different transaction types
+    if (formData.type === 'transfer_to_target') {
+      if (!formData.amount || !formData.description || !formData.targetId) {
+        toast.error('Semua field harus diisi untuk setor ke target');
+        return;
+      }
+    } else {
+      if (!formData.amount || !formData.description || !formData.category) {
+        toast.error('Semua field harus diisi');
+        return;
+      }
     }
 
     const amount = parseNumber(formData.amount);
@@ -67,14 +80,21 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
     }
 
     try {
-      const transactionData = {
+      const transactionData: any = {
         type: formData.type,
         amount: amount,
         description: formData.description,
-        category: formData.category,
         date: formData.date,
         createdAt: editingTransaction?.createdAt || new Date()
       };
+
+      // Add category or targetId based on transaction type
+      if (formData.type === 'transfer_to_target') {
+        transactionData.targetId = parseInt(formData.targetId);
+        transactionData.category = 'Transfer ke Target'; // Default category for target transfers
+      } else {
+        transactionData.category = formData.category;
+      }
 
       if (editingTransaction) {
         await db.transactions.update(editingTransaction.id!, transactionData);
@@ -110,13 +130,13 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="flex space-x-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <label className="flex items-center">
               <input
                 type="radio"
                 value="income"
                 checked={formData.type === 'income'}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense', category: '' })}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer_to_target', category: '', targetId: '' })}
                 className="mr-2 text-emerald-600"
               />
               <span className="text-emerald-600 font-medium">Pemasukan</span>
@@ -126,10 +146,20 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                 type="radio"
                 value="expense"
                 checked={formData.type === 'expense'}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense', category: '' })}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer_to_target', category: '', targetId: '' })}
                 className="mr-2 text-red-600"
               />
               <span className="text-red-600 font-medium">Pengeluaran</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="transfer_to_target"
+                checked={formData.type === 'transfer_to_target'}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer_to_target', category: '', targetId: '' })}
+                className="mr-2 text-blue-600"
+              />
+              <span className="text-blue-600 font-medium">🎯 Setor ke Target</span>
             </label>
           </div>
 
@@ -164,53 +194,102 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Kategori
-            </label>
-            <div className="space-y-2">
-              <div className="text-xs text-gray-500 font-medium">
-                {formData.type === 'income' ? 'KATEGORI PEMASUKAN' : 'KATEGORI PENGELUARAN'}
-              </div>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
-                required
-              >
-                <option value="">
-                  {formData.type === 'income' ? 'Pilih kategori pemasukan' : 'Pilih kategori pengeluaran'}
-                </option>
-                {currentCategories.map((category) => (
-                  <option key={category.id} value={category.name}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-              
-              {currentCategories.length > 0 && (
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="text-xs font-medium text-gray-600 mb-2">
-                    {formData.type === 'income' ? 'Kategori Pemasukan Tersedia:' : 'Kategori Pengeluaran Tersedia:'}
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {currentCategories.map((category) => (
-                      <span
-                        key={category.id}
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          formData.type === 'income' 
-                            ? 'bg-emerald-100 text-emerald-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {category.name}
-                      </span>
-                    ))}
-                  </div>
+          {formData.type === 'transfer_to_target' ? (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Pilih Target Tabungan
+              </label>
+              <div className="space-y-2">
+                <div className="text-xs text-gray-500 font-medium">
+                  TARGET AKTIF PERIODE INI
                 </div>
-              )}
+                <select
+                  value={formData.targetId}
+                  onChange={(e) => setFormData({ ...formData, targetId: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  required
+                >
+                  <option value="">Pilih target tabungan</option>
+                  {activeTargets.map((target) => (
+                    <option key={target.id} value={target.id}>
+                      {target.nama} (Target: {formatInputNumber(target.nominalTarget.toString())})
+                    </option>
+                  ))}
+                </select>
+                
+                {activeTargets.length > 0 && (
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <div className="text-xs font-medium text-blue-600 mb-2">
+                      Target Aktif:
+                    </div>
+                    <div className="space-y-1">
+                      {activeTargets.map((target) => (
+                        <div key={target.id} className="text-xs text-blue-700">
+                          🎯 {target.nama} - Target: {formatInputNumber(target.nominalTarget.toString())}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {activeTargets.length === 0 && !targetsLoading && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <div className="text-xs text-yellow-700">
+                      Tidak ada target aktif untuk periode ini. Silakan buat target di halaman Target.
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kategori
+              </label>
+              <div className="space-y-2">
+                <div className="text-xs text-gray-500 font-medium">
+                  {formData.type === 'income' ? 'KATEGORI PEMASUKAN' : 'KATEGORI PENGELUARAN'}
+                </div>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+                  required
+                >
+                  <option value="">
+                    {formData.type === 'income' ? 'Pilih kategori pemasukan' : 'Pilih kategori pengeluaran'}
+                  </option>
+                  {currentCategories.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                
+                {currentCategories.length > 0 && (
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-xs font-medium text-gray-600 mb-2">
+                      {formData.type === 'income' ? 'Kategori Pemasukan Tersedia:' : 'Kategori Pengeluaran Tersedia:'}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {currentCategories.map((category) => (
+                        <span
+                          key={category.id}
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            formData.type === 'income' 
+                              ? 'bg-emerald-100 text-emerald-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {category.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
