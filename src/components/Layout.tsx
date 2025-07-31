@@ -57,8 +57,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         navigate(navItems[currentIndex - 1].path);
       }
     },
-    preventScrollOnSwipe: true,
+    preventScrollOnSwipe: false,
     trackMouse: false,
+    delta: 50, // Minimum swipe distance
+    swipeDuration: 500, // Maximum swipe duration
+    touchEventOptions: { passive: false },
   });
 
   const NavLink = ({ item, onClick }: { item: typeof navItems[0], onClick?: () => void }) => {
