@@ -84,21 +84,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const MobileNavItem = ({ item, isVisible = true }: { item: typeof navItems[0], isVisible?: boolean }) => {
     const Icon = item.icon;
     const isActive = location.pathname === item.path;
-    
+
     if (!isVisible) return null;
-    
+
     return (
       <Link
         to={item.path}
         onClick={() => setMobileMenuOpen(false)}
-        className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg transition-all duration-200 ${
+        className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 min-w-0 flex-1 max-w-[80px] ${
           isActive
             ? 'text-emerald-600 bg-emerald-50'
             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
         }`}
       >
-        <Icon className="h-5 w-5" />
-        <span className="text-xs font-medium">{item.label}</span>
+        <Icon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+        <span className="text-xs font-medium text-center truncate w-full leading-tight">{item.label}</span>
       </Link>
     );
   };
