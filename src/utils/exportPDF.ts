@@ -89,6 +89,31 @@ export const exportToPDF = async (data: ExportData) => {
   addText(`Saldo: ${formatCurrency(data.totalBalance)}`, margin, yPosition, 12, true);
   yPosition += 20;
 
+  // Active Targets Section
+  if (data.activeTargets && data.activeTargets.length > 0) {
+    addText('TARGET TABUNGAN AKTIF', margin, yPosition, 14, true);
+    yPosition += 15;
+
+    data.activeTargets.forEach((target) => {
+      const statusText =
+        target.status === 'completed' ? 'Tercapai' :
+        target.status === 'ahead' ? 'Unggul' :
+        target.status === 'behind' ? 'Tertinggal' :
+        'Sesuai Target';
+
+      addText(`${target.nama}: ${formatCurrency(target.progress)} / ${formatCurrency(target.nominalTarget)} (${target.percentage.toFixed(1)}% - ${statusText})`,
+        margin, yPosition);
+      yPosition += 10;
+
+      // Check if we need a new page
+      if (yPosition > 250) {
+        pdf.addPage();
+        yPosition = 30;
+      }
+    });
+    yPosition += 10;
+  }
+
   // Category Usage Section
   if (data.categoryUsage.length > 0) {
     addText('PENGGUNAAN KATEGORI', margin, yPosition, 14, true);
@@ -96,10 +121,10 @@ export const exportToPDF = async (data: ExportData) => {
 
     data.categoryUsage.forEach((category) => {
       const typeText = category.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
-      addText(`${category.name} (${typeText}): ${formatCurrency(category.totalAmount)} (${category.percentage.toFixed(1)}%)`, 
+      addText(`${category.name} (${typeText}): ${formatCurrency(category.totalAmount)} (${category.percentage.toFixed(1)}%)`,
         margin, yPosition);
       yPosition += 10;
-      
+
       // Check if we need a new page
       if (yPosition > 250) {
         pdf.addPage();
