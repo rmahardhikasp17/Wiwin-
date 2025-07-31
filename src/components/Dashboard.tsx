@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowUp, ArrowDown, Calendar, FileText, Plus, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Transaction, Category } from '../services/database';
 import { useTransactionsByPeriode } from '../hooks/useTransactionsByPeriode';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
+import { useUserSettings } from '../hooks/useUserSettings';
 import { formatCurrency } from '../utils/formatCurrency';
 import { useTargetProgress } from '@/hooks/useTargetProgress';
 import TransactionFormModal from './TransactionFormModal';
@@ -32,6 +32,7 @@ const Dashboard: React.FC = () => {
   const { categories } = useKategoriByPeriode();
   const { getFormattedSelection } = useDateFilterHelper();
   const { getActiveTargetProgress } = useTargetProgress();
+  const { userSettings } = useUserSettings();
   
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [totalIncome, setTotalIncome] = useState(0);
@@ -148,6 +149,13 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Welcome Message */}
+      <div className="bg-gradient-to-r from-emerald-500 to-blue-600 rounded-xl shadow-sm p-6 text-white">
+        <div>
+          <h1 className="text-2xl font-bold">Selamat datang, {userSettings.userName}! 👋</h1>
+          <p className="text-emerald-100 mt-1">Ringkasan keuangan Anda untuk {getFormattedSelection()}</p>
+        </div>
+      </div>
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-emerald-500">
