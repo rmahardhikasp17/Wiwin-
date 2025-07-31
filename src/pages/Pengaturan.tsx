@@ -14,6 +14,12 @@ const Pengaturan: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const { userSettings, loading: userLoading, updateUserSettings } = useUserSettings();
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    userName: '',
+    userEmail: ''
+  });
 
   // Export data to JSON
   const handleExportData = async () => {
