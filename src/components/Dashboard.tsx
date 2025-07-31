@@ -158,40 +158,40 @@ const Dashboard: React.FC = () => {
       </div>
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-emerald-500">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-emerald-500">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Pemasukan {getFormattedSelection()}</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalIncome)}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Pemasukan {getFormattedSelection()}</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 break-words">{formatCurrency(totalIncome)}</p>
             </div>
-            <div className="bg-emerald-100 p-3 rounded-full">
-              <ArrowUp className="h-6 w-6 text-emerald-600" />
+            <div className="bg-emerald-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <ArrowUp className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-red-500">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-red-500">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Pengeluaran {getFormattedSelection()}</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalExpense)}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Pengeluaran {getFormattedSelection()}</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 break-words">{formatCurrency(totalExpense)}</p>
             </div>
-            <div className="bg-red-100 p-3 rounded-full">
-              <ArrowDown className="h-6 w-6 text-red-600" />
+            <div className="bg-red-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <ArrowDown className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-blue-500 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Saldo</p>
-              <p className={`text-2xl font-bold ${totalIncome - totalExpense >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Saldo</p>
+              <p className={`text-lg sm:text-2xl font-bold break-words ${totalIncome - totalExpense >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {formatCurrency(totalIncome - totalExpense)}
               </p>
             </div>
-            <div className="bg-blue-100 p-3 rounded-full">
-              <Calendar className="h-6 w-6 text-blue-600" />
+            <div className="bg-blue-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
             </div>
           </div>
         </div>
