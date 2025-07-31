@@ -237,13 +237,23 @@ const Kategori: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">Kelola Kategori</h1>
             <p className="text-gray-600 mt-1">Periode: {getFormattedSelection()}</p>
           </div>
-          <Button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-emerald-500 hover:bg-emerald-600"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Tambah Kategori
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleCopyLastMonthCategories}
+              variant="outline"
+              className="text-blue-600 border-blue-600 hover:bg-blue-50"
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Salin Kategori Bulan Lalu
+            </Button>
+            <Button
+              onClick={() => setShowForm(!showForm)}
+              className="bg-emerald-500 hover:bg-emerald-600"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Tambah Kategori
+            </Button>
+          </div>
         </div>
 
         {/* Form Add/Edit Category */}
