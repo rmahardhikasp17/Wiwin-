@@ -62,7 +62,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="bg-white/20 p-2 rounded-lg">
                 <Calendar className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-lg font-bold text-white">Dompet Bergerak</h1>
+              <h1 className="text-lg font-bold text-white">Gajiku</h1>
             </div>
             
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -75,7 +75,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <SheetHeader className="p-6 bg-gradient-to-r from-emerald-500 to-blue-600 text-white">
                   <SheetTitle className="text-white flex items-center space-x-3">
                     <Calendar className="h-6 w-6" />
-                    <span>Dompet Bergerak</span>
+                    <span>Gajiku</span>
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="p-4 space-y-2">
@@ -106,7 +106,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="bg-white/20 p-2 rounded-lg">
                 <Calendar className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-white">Dompet Bergerak</h1>
+              <h1 className="text-2xl font-bold text-white">Gajiku</h1>
             </div>
             
             {/* Desktop Filter */}
