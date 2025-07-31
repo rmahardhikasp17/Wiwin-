@@ -165,12 +165,101 @@ const Pengaturan: React.FC = () => {
     });
   };
 
+  const handleEditProfile = () => {
+    setProfileForm({
+      userName: userSettings.userName,
+      userEmail: userSettings.userEmail || ''
+    });
+    setEditingProfile(true);
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      await updateUserSettings({
+        userName: profileForm.userName || 'Pengguna',
+        userEmail: profileForm.userEmail
+      });
+      setEditingProfile(false);
+    } catch (error) {
+      // Error handling is done in the hook
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProfile(false);
+    setProfileForm({
+      userName: userSettings.userName,
+      userEmail: userSettings.userEmail || ''
+    });
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Pengaturan</h1>
         <p className="text-gray-600">Kelola data dan tampilan aplikasi Anda</p>
       </div>
+
+      {/* User Profile Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Profil Pengguna
+          </CardTitle>
+          <CardDescription>
+            Kelola informasi profil Anda
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {editingProfile ? (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="userName">Nama Pengguna</Label>
+                <Input
+                  id="userName"
+                  value={profileForm.userName}
+                  onChange={(e) => setProfileForm(prev => ({ ...prev, userName: e.target.value }))}
+                  placeholder="Masukkan nama Anda"
+                />
+              </div>
+              <div>
+                <Label htmlFor="userEmail">Email (Opsional)</Label>
+                <Input
+                  id="userEmail"
+                  type="email"
+                  value={profileForm.userEmail}
+                  onChange={(e) => setProfileForm(prev => ({ ...prev, userEmail: e.target.value }))}
+                  placeholder="nama@email.com"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleSaveProfile} className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Simpan
+                </Button>
+                <Button variant="outline" onClick={handleCancelEdit}>
+                  Batal
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h3 className="font-medium">Nama: {userSettings.userName}</h3>
+                  {userSettings.userEmail && (
+                    <p className="text-sm text-gray-600">Email: {userSettings.userEmail}</p>
+                  )}
+                </div>
+                <Button onClick={handleEditProfile} variant="outline">
+                  Edit Profil
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Theme Settings */}
       <Card>
