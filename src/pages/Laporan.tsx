@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, TrendingUp, TrendingDown, AlertCircle, CheckCircle } from 'lucide-react';
+import { Calendar, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useDateFilterHelper } from '@/hooks/useDateFilterHelper';
 import { useTransactionsByPeriode } from '@/hooks/useTransactionsByPeriode';
 import { useKategoriByPeriode } from '@/hooks/useKategoriByPeriode';
+import { useTargetProgress } from '@/hooks/useTargetProgress';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { db } from '@/services/database';
 import TransactionTable from '@/components/TransactionTable';
@@ -37,6 +38,7 @@ const Laporan: React.FC = () => {
   const { bulan, tahun, getMonthName } = useDateFilterHelper();
   const { transactions } = useTransactionsByPeriode();
   const { categories } = useKategoriByPeriode();
+  const { getActiveTargetProgress } = useTargetProgress();
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [categoryUsage, setCategoryUsage] = useState<CategoryUsage[]>([]);
 
@@ -125,6 +127,7 @@ const Laporan: React.FC = () => {
   };
 
   const handleExportPDF = async () => {
+    const activeTargets = getActiveTargetProgress();
     const exportData = {
       periode: `${getMonthName(bulan)} ${tahun}`,
       totalIncome,
@@ -136,9 +139,16 @@ const Laporan: React.FC = () => {
         type: cat.type,
         totalAmount: cat.totalAmount,
         percentage: cat.percentage
+      })),
+      activeTargets: activeTargets.map(tp => ({
+        nama: tp.target.nama,
+        nominalTarget: tp.target.nominalTarget,
+        progress: tp.progress,
+        percentage: tp.percentage,
+        status: tp.status
       }))
     };
-    
+
     await exportToPDF(exportData);
   };
 
@@ -266,6 +276,73 @@ const Laporan: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Active Targets Section */}
+      {getActiveTargetProgress().length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-blue-600" />
+              Target Tabungan Aktif
+            </CardTitle>
+            <CardDescription>
+              Progress target tabungan yang sedang berjalan
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nama Target</TableHead>
+                  <TableHead>Target Nominal</TableHead>
+                  <TableHead>Progress</TableHead>
+                  <TableHead>Persentase</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {getActiveTargetProgress().map((tp) => (
+                  <TableRow key={tp.target.id}>
+                    <TableCell className="font-medium">{tp.target.nama}</TableCell>
+                    <TableCell>{formatCurrency(tp.target.nominalTarget)}</TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm font-medium">
+                          {formatCurrency(tp.progress)}
+                        </div>
+                        <Progress value={tp.percentage} className="h-2 w-20" />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`font-semibold ${
+                        tp.percentage >= 100 ? 'text-green-600' :
+                        tp.percentage >= 80 ? 'text-yellow-600' : 'text-blue-600'
+                      }`}>
+                        {tp.percentage.toFixed(1)}%
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        tp.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        tp.status === 'ahead' ? 'bg-blue-100 text-blue-800' :
+                        tp.status === 'behind' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {
+                          tp.status === 'completed' ? 'Tercapai' :
+                          tp.status === 'ahead' ? 'Unggul' :
+                          tp.status === 'behind' ? 'Tertinggal' :
+                          'Sesuai Target'
+                        }
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Category Usage Table */}
       <Card>
