@@ -48,18 +48,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     onSwipedLeft: () => {
       const currentIndex = getCurrentPageIndex();
       if (currentIndex < navItems.length - 1) {
+        // Add subtle haptic feedback if available
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
         navigate(navItems[currentIndex + 1].path);
       }
     },
     onSwipedRight: () => {
       const currentIndex = getCurrentPageIndex();
       if (currentIndex > 0) {
+        // Add subtle haptic feedback if available
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
         navigate(navItems[currentIndex - 1].path);
       }
     },
     preventScrollOnSwipe: false,
     trackMouse: false,
-    delta: 50, // Minimum swipe distance
+    delta: 60, // Minimum swipe distance
     swipeDuration: 500, // Maximum swipe duration
     touchEventOptions: { passive: false },
   });
