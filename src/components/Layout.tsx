@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useSwipeable } from 'react-swipeable';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -9,7 +11,9 @@ import {
   Calendar,
   Target,
   Menu,
-  X
+  X,
+  MoreHorizontal,
+  ChevronUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -21,7 +25,9 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -31,6 +37,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/target', icon: Target, label: 'Target' },
     { path: '/pengaturan', icon: Settings, label: 'Pengaturan' }
   ];
+
+  // Get current page index for swipe navigation
+  const getCurrentPageIndex = () => {
+    return navItems.findIndex(item => item.path === location.pathname);
+  };
+
+  // Swipe handlers
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      const currentIndex = getCurrentPageIndex();
+      if (currentIndex < navItems.length - 1) {
+        navigate(navItems[currentIndex + 1].path);
+      }
+    },
+    onSwipedRight: () => {
+      const currentIndex = getCurrentPageIndex();
+      if (currentIndex > 0) {
+        navigate(navItems[currentIndex - 1].path);
+      }
+    },
+    preventScrollOnSwipe: true,
+    trackMouse: false,
+  });
 
   const NavLink = ({ item, onClick }: { item: typeof navItems[0], onClick?: () => void }) => {
     const Icon = item.icon;
@@ -48,6 +77,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         <Icon className="h-5 w-5 flex-shrink-0" />
         <span className="font-medium">{item.label}</span>
+      </Link>
+    );
+  };
+
+  const MobileNavItem = ({ item, isVisible = true }: { item: typeof navItems[0], isVisible?: boolean }) => {
+    const Icon = item.icon;
+    const isActive = location.pathname === item.path;
+    
+    if (!isVisible) return null;
+    
+    return (
+      <Link
+        to={item.path}
+        onClick={() => setMobileMenuOpen(false)}
+        className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg transition-all duration-200 ${
+          isActive
+            ? 'text-emerald-600 bg-emerald-50'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+        }`}
+      >
+        <Icon className="h-5 w-5" />
+        <span className="text-xs font-medium">{item.label}</span>
       </Link>
     );
   };
@@ -128,8 +179,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </nav>
           </aside>
 
-          {/* Main Content */}
-          <main className="flex-1 min-w-0">
+          {/* Main Content with Swipe Support */}
+          <main className="flex-1 min-w-0" {...swipeHandlers}>
             <div className="space-y-4 sm:space-y-6">
               {children}
             </div>
@@ -138,28 +189,61 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
-        <nav className="flex justify-around">
-          {navItems.slice(0, 5).map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        {/* Main Bottom Navigation */}
+        <div className="px-4 py-2">
+          <nav className="flex justify-between items-center">
+            {/* First 4 navigation items */}
+            <div className="flex justify-around flex-1">
+              {navItems.slice(0, 4).map((item) => (
+                <MobileNavItem key={item.path} item={item} />
+              ))}
+            </div>
             
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex flex-col items-center space-y-1 px-2 py-2 rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? 'text-emerald-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="text-xs font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+            {/* More menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg transition-all duration-200 ${
+                mobileMenuOpen
+                  ? 'text-emerald-600 bg-emerald-50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {mobileMenuOpen ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <MoreHorizontal className="h-5 w-5" />
+              )}
+              <span className="text-xs font-medium">Lainnya</span>
+            </button>
+          </nav>
+        </div>
+
+        {/* Popup Menu for Additional Items */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white border-t border-gray-200 px-4 py-3"
+            >
+              <div className="flex justify-around">
+                {navItems.slice(4).map((item) => (
+                  <MobileNavItem key={item.path} item={item} />
+                ))}
+              </div>
+              
+              {/* Swipe hint */}
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <p className="text-xs text-gray-500 text-center">
+                  💡 Geser kiri/kanan untuk berpindah halaman
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Bottom padding for mobile navigation */}
