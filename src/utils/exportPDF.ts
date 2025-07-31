@@ -164,23 +164,43 @@ export const exportToPDF = async (data: ExportData) => {
         month: '2-digit',
         year: 'numeric'
       });
-      const typeText = transaction.type === 'income' ? 'Masuk' : 'Keluar';
-      const amount = `${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}`;
 
-      addText(date, margin, yPosition, 9);
-      addText(transaction.description.substring(0, 15) + (transaction.description.length > 15 ? '...' : ''), 
-        margin + 30, yPosition, 9);
-      addText(transaction.category.substring(0, 12) + (transaction.category.length > 12 ? '...' : ''), 
-        margin + 80, yPosition, 9);
-      addText(typeText, margin + 120, yPosition, 9);
-      addText(amount, margin + 150, yPosition, 9);
-      yPosition += 8;
+      let typeText = 'Keluar';
+      if (transaction.type === 'income') typeText = 'Masuk';
+      else if (transaction.type === 'transfer_to_target') typeText = 'Target';
+
+      const amount = `${transaction.type === 'income' ? '+' : transaction.type === 'transfer_to_target' ? '🎯' : '-'}${formatCurrency(transaction.amount)}`;
+
+      // Wrap description text
+      const descriptionLines = wrapText(transaction.description, 40, 9);
+      const categoryLines = wrapText(transaction.category, 25, 9);
+
+      // Calculate how many lines this transaction will need
+      const maxLines = Math.max(descriptionLines.length, categoryLines.length, 1);
+      const lineHeight = 6;
 
       // Check if we need a new page
-      if (yPosition > 270) {
+      if (yPosition + (maxLines * lineHeight) > 270) {
         pdf.addPage();
         yPosition = 30;
       }
+
+      // Add date, type, and amount (single line items)
+      addText(date, margin, yPosition, 9);
+      addText(typeText, margin + 120, yPosition, 9);
+      addText(amount, margin + 150, yPosition, 9);
+
+      // Add multi-line description
+      descriptionLines.forEach((line, index) => {
+        addText(line, margin + 30, yPosition + (index * lineHeight), 9);
+      });
+
+      // Add multi-line category
+      categoryLines.forEach((line, index) => {
+        addText(line, margin + 80, yPosition + (index * lineHeight), 9);
+      });
+
+      yPosition += maxLines * lineHeight + 2;
     });
   }
 
