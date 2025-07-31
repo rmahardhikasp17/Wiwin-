@@ -212,11 +212,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* More menu button */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 ${
+              onClick={() => {
+                setMobileMenuOpen(!mobileMenuOpen);
+                // Add haptic feedback if available
+                if (navigator.vibrate) {
+                  navigator.vibrate(30);
+                }
+              }}
+              aria-label={mobileMenuOpen ? "Tutup menu tambahan" : "Buka menu tambahan"}
+              aria-expanded={mobileMenuOpen}
+              className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 touch-target ${
                 mobileMenuOpen
                   ? 'text-emerald-600 bg-emerald-50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 active:bg-gray-100'
               }`}
             >
               {mobileMenuOpen ? (
