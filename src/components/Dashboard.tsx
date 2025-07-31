@@ -198,7 +198,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Charts and Budget Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Daily Chart */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
