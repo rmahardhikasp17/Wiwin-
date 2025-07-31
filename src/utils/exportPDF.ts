@@ -41,6 +41,36 @@ export const exportToPDF = async (data: ExportData) => {
     pdf.text(text, x, y);
   };
 
+  // Helper function to wrap text
+  const wrapText = (text: string, maxWidth: number, fontSize = 9): string[] => {
+    pdf.setFontSize(fontSize);
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const testLine = currentLine + (currentLine ? ' ' : '') + word;
+      const textWidth = pdf.getTextWidth(testLine);
+
+      if (textWidth <= maxWidth) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          lines.push(word);
+        }
+      }
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return lines;
+  };
+
   // Header
   addText('LAPORAN KEUANGAN', pageWidth / 2, yPosition, 18, true);
   pdf.setTextColor(100);
