@@ -27,7 +27,7 @@ interface CategoryBudget {
   percentage: number;
 }
 
-const Dashboard: React.FC = () => {
+const ResponsiveDashboard: React.FC = () => {
   const { transactions: allTransactions, getBalance } = useTransactionsByPeriode();
   const { categories } = useKategoriByPeriode();
   const { getFormattedSelection } = useDateFilterHelper();
@@ -132,7 +132,6 @@ const Dashboard: React.FC = () => {
     toast.success('Transaksi berhasil ditambahkan!');
   };
 
-
   const getBudgetStatus = (percentage: number) => {
     if (percentage >= 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Melebihi batas!' };
     if (percentage >= 80) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Mendekati batas' };
@@ -148,7 +147,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 pb-20 lg:pb-0">
       {/* Welcome Message */}
       <div className="bg-gradient-to-r from-emerald-500 to-blue-600 rounded-xl shadow-sm p-4 sm:p-6 text-white">
         <div>
@@ -156,6 +155,7 @@ const Dashboard: React.FC = () => {
           <p className="text-emerald-100 mt-1 text-sm sm:text-base">Ringkasan keuangan Anda untuk {getFormattedSelection()}</p>
         </div>
       </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-emerald-500">
@@ -200,20 +200,28 @@ const Dashboard: React.FC = () => {
       {/* Charts and Budget Alerts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Daily Chart */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <TrendingUp className="h-5 w-5 mr-2" />
-            Tren 7 Hari Terakhir
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            <span className="truncate">Tren 7 Hari Terakhir</span>
           </h2>
-          <div className="h-64">
+          <div className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dailyData}>
+              <BarChart data={dailyData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis tickFormatter={(value) => `${value / 1000}k`} />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12 }}
+                  interval={0}
+                />
+                <YAxis 
+                  tickFormatter={(value) => `${value / 1000}k`}
+                  tick={{ fontSize: 12 }}
+                />
                 <Tooltip 
                   formatter={(value: number) => [formatCurrency(value), '']}
                   labelStyle={{ color: '#374151' }}
+                  contentStyle={{ fontSize: '14px' }}
                 />
                 <Bar dataKey="income" fill="#10B981" name="Pemasukan" />
                 <Bar dataKey="expense" fill="#EF4444" name="Pengeluaran" />
@@ -224,22 +232,22 @@ const Dashboard: React.FC = () => {
 
         {/* Target Progress (if any active targets) */}
         {getActiveTargetProgress().length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-              <TrendingUp className="h-5 w-5 mr-2" />
-              Target Tabungan Aktif
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              <span className="truncate">Target Tabungan Aktif</span>
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {getActiveTargetProgress().slice(0, 3).map((tp) => (
                 <div key={tp.target.id} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-medium text-gray-900">{tp.target.nama}</span>
+                  <div className="flex justify-between items-start sm:items-center gap-2">
+                    <div className="min-w-0 flex-1">
+                      <span className="font-medium text-gray-900 text-sm sm:text-base truncate block">{tp.target.nama}</span>
                       <p className="text-xs text-gray-500">
                         Target: {formatCurrency(tp.target.nominalTarget)}
                       </p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex-shrink-0">
                       <p className="text-sm font-semibold text-emerald-600">
                         {tp.percentage.toFixed(0)}%
                       </p>
@@ -256,32 +264,32 @@ const Dashboard: React.FC = () => {
         )}
 
         {/* Budget Progress */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2" />
-            Monitor Anggaran
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+            <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            <span className="truncate">Monitor Anggaran</span>
           </h2>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {categoryBudgets.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">Belum ada kategori dengan batas anggaran</p>
+              <p className="text-gray-500 text-center py-6 sm:py-8 text-sm sm:text-base">Belum ada kategori dengan batas anggaran</p>
             ) : (
               categoryBudgets.map((category) => {
                 const status = getBudgetStatus(category.percentage);
                 return (
                   <div key={category.id} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
+                    <div className="flex justify-between items-start sm:items-center gap-2">
+                      <div className="flex items-center space-x-2 min-w-0 flex-1">
                         <div 
-                          className="w-3 h-3 rounded-full"
+                          className="w-3 h-3 rounded-full flex-shrink-0"
                           style={{ backgroundColor: category.color }}
                         ></div>
-                        <span className="font-medium text-gray-900">{category.name}</span>
+                        <span className="font-medium text-gray-900 text-sm sm:text-base truncate">{category.name}</span>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         <p className={`text-sm font-semibold ${status.color}`}>
                           {category.percentage.toFixed(0)}%
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 whitespace-nowrap">
                           {formatCurrency(category.spent)} / {formatCurrency(category.budget)}
                         </p>
                       </div>
@@ -303,53 +311,53 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Quick Add Transaction */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <FileText className="h-5 w-5 mr-2" />
-            Tambah Transaksi Cepat
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+            <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            <span className="truncate">Tambah Transaksi Cepat</span>
           </h2>
           <button
             onClick={() => setIsModalOpen(true)}
             className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-emerald-600 hover:to-blue-700 transition-all duration-200 font-medium flex items-center justify-center space-x-2"
           >
-            <Plus className="h-5 w-5" />
-            <span>Tambah Transaksi Baru</span>
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="text-sm sm:text-base">Tambah Transaksi Baru</span>
           </button>
         </div>
 
         {/* Recent Transactions */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Transaksi Terbaru</h2>
-          <div className="space-y-4">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Transaksi Terbaru</h2>
+          <div className="space-y-3 sm:space-y-4">
             {recentTransactions.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">Belum ada transaksi</p>
+              <p className="text-gray-500 text-center py-6 sm:py-8 text-sm sm:text-base">Belum ada transaksi</p>
             ) : (
               recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-full ${
+                  <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                    <div className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${
                       transaction.type === 'income' ? 'bg-emerald-100' : 'bg-red-100'
                     }`}>
                       {transaction.type === 'income' ? (
-                        <ArrowUp className={`h-4 w-4 text-emerald-600`} />
+                        <ArrowUp className={`h-3 w-3 sm:h-4 sm:w-4 text-emerald-600`} />
                       ) : (
-                        <ArrowDown className={`h-4 w-4 text-red-600`} />
+                        <ArrowDown className={`h-3 w-3 sm:h-4 sm:w-4 text-red-600`} />
                       )}
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{transaction.description}</p>
-                      <p className="text-sm text-gray-500">{transaction.category}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-gray-900 text-sm sm:text-base truncate">{transaction.description}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 truncate">{transaction.category}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className={`font-semibold ${
+                  <div className="text-right flex-shrink-0 ml-2">
+                    <p className={`font-semibold text-sm sm:text-base ${
                       transaction.type === 'income' ? 'text-emerald-600' : 'text-red-600'
                     }`}>
                       {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs sm:text-sm text-gray-500">
                       {new Date(transaction.date).toLocaleDateString('id-ID')}
                     </p>
                   </div>
@@ -370,4 +378,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default ResponsiveDashboard;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Edit, Trash2, Calendar, TrendingUp, TrendingDown, Target } from 'lucide-react';
 import { Transaction } from '../services/database';
@@ -17,15 +16,34 @@ import { Button } from '@/components/ui/button';
 interface TransactionListProps {
   onEditTransaction: (transaction: Transaction) => void;
   refreshTrigger: number;
+  categoryFilter?: string;
+  typeFilter?: string;
 }
 
-const TransactionList: React.FC<TransactionListProps> = ({ 
-  onEditTransaction, 
-  refreshTrigger 
+const TransactionList: React.FC<TransactionListProps> = ({
+  onEditTransaction,
+  refreshTrigger,
+  categoryFilter = 'all',
+  typeFilter = 'all'
 }) => {
-  const { transactions, loading, loadTransactions, deleteTransaction } = useTransactionsByPeriode();
+  const { transactions: allTransactions, loading, loadTransactions, deleteTransaction } = useTransactionsByPeriode();
   const { getFormattedSelection } = useDateFilterHelper();
   const { targets } = useTarget();
+
+  // Apply filters
+  const transactions = React.useMemo(() => {
+    let filtered = allTransactions;
+
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(t => t.category === categoryFilter);
+    }
+
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter(t => t.type === typeFilter);
+    }
+
+    return filtered;
+  }, [allTransactions, categoryFilter, typeFilter]);
 
   // Reload when refreshTrigger changes
   React.useEffect(() => {

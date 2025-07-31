@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, AlertTriangle, CheckCircle, Copy } from 'lucide-react';
 import { db, Category } from '../services/database';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
@@ -133,6 +132,68 @@ const Kategori: React.FC = () => {
     setShowForm(false);
   };
 
+  const handleCopyLastMonthCategories = async () => {
+    try {
+      // Calculate last month and year
+      let lastMonth = bulan - 1;
+      let lastYear = tahun;
+
+      if (lastMonth === 0) {
+        lastMonth = 12;
+        lastYear = tahun - 1;
+      }
+
+      // Get categories from last month
+      const lastMonthCategories = await db.categories
+        .where(['bulan', 'tahun'])
+        .equals([lastMonth, lastYear])
+        .toArray();
+
+      if (lastMonthCategories.length === 0) {
+        toast.error('Tidak ada kategori pada bulan sebelumnya untuk disalin');
+        return;
+      }
+
+      // Check if current month already has categories
+      const currentCategories = await db.categories
+        .where(['bulan', 'tahun'])
+        .equals([bulan, tahun])
+        .toArray();
+
+      if (currentCategories.length > 0) {
+        const proceed = confirm(
+          `Sudah ada ${currentCategories.length} kategori untuk ${getFormattedSelection()}. ` +
+          'Apakah Anda ingin menambahkan kategori dari bulan lalu?'
+        );
+        if (!proceed) return;
+      }
+
+      // Copy categories to current month
+      const categoriesToAdd = lastMonthCategories.map(cat => ({
+        name: cat.name,
+        type: cat.type,
+        budgetLimit: cat.budgetLimit,
+        color: cat.color,
+        bulan: bulan,
+        tahun: tahun,
+        createdAt: new Date()
+      }));
+
+      await db.categories.bulkAdd(categoriesToAdd);
+
+      toast.success(
+        `Berhasil menyalin ${categoriesToAdd.length} kategori dari ${lastMonth}/${lastYear}`
+      );
+
+      // Refresh the categories
+      window.location.reload();
+
+    } catch (error) {
+      console.error('Error copying categories:', error);
+      toast.error('Gagal menyalin kategori dari bulan lalu');
+    }
+  };
+
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -176,13 +237,23 @@ const Kategori: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">Kelola Kategori</h1>
             <p className="text-gray-600 mt-1">Periode: {getFormattedSelection()}</p>
           </div>
-          <Button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-emerald-500 hover:bg-emerald-600"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Tambah Kategori
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleCopyLastMonthCategories}
+              variant="outline"
+              className="text-blue-600 border-blue-600 hover:bg-blue-50"
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Salin Kategori Bulan Lalu
+            </Button>
+            <Button
+              onClick={() => setShowForm(!showForm)}
+              className="bg-emerald-500 hover:bg-emerald-600"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Tambah Kategori
+            </Button>
+          </div>
         </div>
 
         {/* Form Add/Edit Category */}

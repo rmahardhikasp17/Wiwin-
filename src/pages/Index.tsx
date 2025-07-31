@@ -1,12 +1,11 @@
-
 import React from 'react';
 import Layout from '../components/Layout';
-import Dashboard from '../components/Dashboard';
+import ResponsiveDashboard from '../components/ResponsiveDashboard';
 
 const Index: React.FC = () => {
   return (
     <Layout>
-      <Dashboard />
+      <ResponsiveDashboard />
     </Layout>
   );
 };

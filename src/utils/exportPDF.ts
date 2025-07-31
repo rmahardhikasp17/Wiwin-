@@ -15,6 +15,13 @@ interface ExportData {
     totalAmount: number;
     percentage: number;
   }>;
+  activeTargets?: Array<{
+    nama: string;
+    nominalTarget: number;
+    progress: number;
+    percentage: number;
+    status: string;
+  }>;
 }
 
 export const exportToPDF = async (data: ExportData) => {
@@ -32,6 +39,36 @@ export const exportToPDF = async (data: ExportData) => {
       pdf.setFont(undefined, 'normal');
     }
     pdf.text(text, x, y);
+  };
+
+  // Helper function to wrap text
+  const wrapText = (text: string, maxWidth: number, fontSize = 9): string[] => {
+    pdf.setFontSize(fontSize);
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const testLine = currentLine + (currentLine ? ' ' : '') + word;
+      const textWidth = pdf.getTextWidth(testLine);
+
+      if (textWidth <= maxWidth) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          lines.push(word);
+        }
+      }
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return lines;
   };
 
   // Header
@@ -52,6 +89,31 @@ export const exportToPDF = async (data: ExportData) => {
   addText(`Saldo: ${formatCurrency(data.totalBalance)}`, margin, yPosition, 12, true);
   yPosition += 20;
 
+  // Active Targets Section
+  if (data.activeTargets && data.activeTargets.length > 0) {
+    addText('TARGET TABUNGAN AKTIF', margin, yPosition, 14, true);
+    yPosition += 15;
+
+    data.activeTargets.forEach((target) => {
+      const statusText =
+        target.status === 'completed' ? 'Tercapai' :
+        target.status === 'ahead' ? 'Unggul' :
+        target.status === 'behind' ? 'Tertinggal' :
+        'Sesuai Target';
+
+      addText(`${target.nama}: ${formatCurrency(target.progress)} / ${formatCurrency(target.nominalTarget)} (${target.percentage.toFixed(1)}% - ${statusText})`,
+        margin, yPosition);
+      yPosition += 10;
+
+      // Check if we need a new page
+      if (yPosition > 250) {
+        pdf.addPage();
+        yPosition = 30;
+      }
+    });
+    yPosition += 10;
+  }
+
   // Category Usage Section
   if (data.categoryUsage.length > 0) {
     addText('PENGGUNAAN KATEGORI', margin, yPosition, 14, true);
@@ -59,10 +121,10 @@ export const exportToPDF = async (data: ExportData) => {
 
     data.categoryUsage.forEach((category) => {
       const typeText = category.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
-      addText(`${category.name} (${typeText}): ${formatCurrency(category.totalAmount)} (${category.percentage.toFixed(1)}%)`, 
+      addText(`${category.name} (${typeText}): ${formatCurrency(category.totalAmount)} (${category.percentage.toFixed(1)}%)`,
         margin, yPosition);
       yPosition += 10;
-      
+
       // Check if we need a new page
       if (yPosition > 250) {
         pdf.addPage();
@@ -102,23 +164,43 @@ export const exportToPDF = async (data: ExportData) => {
         month: '2-digit',
         year: 'numeric'
       });
-      const typeText = transaction.type === 'income' ? 'Masuk' : 'Keluar';
-      const amount = `${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}`;
 
-      addText(date, margin, yPosition, 9);
-      addText(transaction.description.substring(0, 15) + (transaction.description.length > 15 ? '...' : ''), 
-        margin + 30, yPosition, 9);
-      addText(transaction.category.substring(0, 12) + (transaction.category.length > 12 ? '...' : ''), 
-        margin + 80, yPosition, 9);
-      addText(typeText, margin + 120, yPosition, 9);
-      addText(amount, margin + 150, yPosition, 9);
-      yPosition += 8;
+      let typeText = 'Keluar';
+      if (transaction.type === 'income') typeText = 'Masuk';
+      else if (transaction.type === 'transfer_to_target') typeText = 'Target';
+
+      const amount = `${transaction.type === 'income' ? '+' : transaction.type === 'transfer_to_target' ? '🎯' : '-'}${formatCurrency(transaction.amount)}`;
+
+      // Wrap description text
+      const descriptionLines = wrapText(transaction.description, 40, 9);
+      const categoryLines = wrapText(transaction.category, 25, 9);
+
+      // Calculate how many lines this transaction will need
+      const maxLines = Math.max(descriptionLines.length, categoryLines.length, 1);
+      const lineHeight = 6;
 
       // Check if we need a new page
-      if (yPosition > 270) {
+      if (yPosition + (maxLines * lineHeight) > 270) {
         pdf.addPage();
         yPosition = 30;
       }
+
+      // Add date, type, and amount (single line items)
+      addText(date, margin, yPosition, 9);
+      addText(typeText, margin + 120, yPosition, 9);
+      addText(amount, margin + 150, yPosition, 9);
+
+      // Add multi-line description
+      descriptionLines.forEach((line, index) => {
+        addText(line, margin + 30, yPosition + (index * lineHeight), 9);
+      });
+
+      // Add multi-line category
+      categoryLines.forEach((line, index) => {
+        addText(line, margin + 80, yPosition + (index * lineHeight), 9);
+      });
+
+      yPosition += maxLines * lineHeight + 2;
     });
   }
 
