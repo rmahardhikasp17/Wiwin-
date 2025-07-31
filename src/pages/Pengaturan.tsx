@@ -389,15 +389,27 @@ const Pengaturan: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* App Info - Minimized */}
+      {/* Usage Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Informasi Aplikasi</CardTitle>
+          <CardTitle>Informasi Penggunaan</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2 text-sm text-gray-600">
-            <p><strong>Gaji-Ku</strong> - Aplikasi Manajemen Keuangan Pribadi</p>
-            <p className="text-xs">Data disimpan secara lokal dan aman di perangkat Anda</p>
+          <div className="space-y-3 text-sm text-gray-600">
+            <div className="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+              <h4 className="font-medium text-blue-800 mb-2">Cara Menggunakan Aplikasi:</h4>
+              <ul className="list-disc list-inside space-y-1 text-blue-700">
+                <li>Gunakan menu <strong>Transaksi</strong> untuk menambah pemasukan dan pengeluaran</li>
+                <li>Atur <strong>Kategori</strong> untuk mengorganisir jenis transaksi</li>
+                <li>Pantau <strong>Laporan</strong> untuk analisis keuangan bulanan</li>
+                <li>Buat <strong>Target</strong> tabungan untuk mencapai tujuan keuangan</li>
+                <li>Gunakan filter tanggal untuk melihat data periode tertentu</li>
+              </ul>
+            </div>
+            <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
+              <h4 className="font-medium text-green-800 mb-1">Tips Penggunaan:</h4>
+              <p className="text-green-700">Backup data secara berkala untuk keamanan dan gunakan export PDF untuk laporan</p>
+            </div>
           </div>
         </CardContent>
       </Card>
