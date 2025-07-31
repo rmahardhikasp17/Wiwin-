@@ -101,11 +101,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
       <Link
         to={item.path}
-        onClick={() => setMobileMenuOpen(false)}
-        className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 min-w-0 flex-1 max-w-[80px] ${
+        onClick={() => {
+          setMobileMenuOpen(false);
+          // Add haptic feedback if available
+          if (navigator.vibrate) {
+            navigator.vibrate(30);
+          }
+        }}
+        aria-label={`Navigasi ke ${item.label}`}
+        className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 min-w-0 flex-1 max-w-[80px] touch-target ${
           isActive
-            ? 'text-emerald-600 bg-emerald-50'
-            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            ? 'text-emerald-600 bg-emerald-50 shadow-sm'
+            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 active:bg-gray-100 active:scale-95'
         }`}
       >
         <Icon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
