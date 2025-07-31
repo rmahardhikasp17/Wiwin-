@@ -183,8 +183,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </aside>
 
         {/* Main Content with Swipe Support */}
-        <main className="flex-1 min-w-0 overflow-hidden" {...swipeHandlers}>
-          <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+        <main className="flex-1 min-w-0 overflow-x-hidden" {...swipeHandlers}>
+          <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-4">
             {children}
           </div>
         </main>
