@@ -148,12 +148,12 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Welcome Message */}
-      <div className="bg-gradient-to-r from-emerald-500 to-blue-600 rounded-xl shadow-sm p-6 text-white">
+      <div className="bg-gradient-to-r from-emerald-500 to-blue-600 rounded-xl shadow-sm p-4 sm:p-6 text-white">
         <div>
-          <h1 className="text-2xl font-bold">Selamat datang, {userSettings.userName}! 👋</h1>
-          <p className="text-emerald-100 mt-1">Ringkasan keuangan Anda untuk {getFormattedSelection()}</p>
+          <h1 className="text-xl sm:text-2xl font-bold">Selamat datang, {userSettings.userName}! 👋</h1>
+          <p className="text-emerald-100 mt-1 text-sm sm:text-base">Ringkasan keuangan Anda untuk {getFormattedSelection()}</p>
         </div>
       </div>
       {/* Summary Cards */}
