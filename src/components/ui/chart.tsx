@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { ResponsiveContainer, TooltipProps } from 'recharts'
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent'
@@ -61,11 +60,32 @@ const ChartTooltipContent = React.forwardRef<
     return null
   }
 
+  // Filter out Recharts-specific props that shouldn't be passed to DOM
+  const {
+    allowEscapeViewBox,
+    animationDuration,
+    animationEasing,
+    axisId,
+    contentStyle,
+    cursor,
+    filterNull,
+    isAnimationActive,
+    itemSorter,
+    itemStyle,
+    labelStyle,
+    reverseDirection,
+    useTranslate3d,
+    wrapperStyle,
+    accessibilityLayer,
+    formatter,
+    ...domProps
+  } = props as any;
+
   return (
     <div
       ref={ref}
       className={cn("grid gap-2 rounded-lg border bg-background p-2 shadow-md", className)}
-      {...props}
+      {...domProps}
     >
       {label && (
         <div className="font-medium text-foreground">
