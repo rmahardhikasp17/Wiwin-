@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, AlertTriangle, CheckCircle, Copy } from 'lucide-react';
 import { db, Category } from '../services/database';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
