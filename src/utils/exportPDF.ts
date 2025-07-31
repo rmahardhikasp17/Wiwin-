@@ -15,6 +15,13 @@ interface ExportData {
     totalAmount: number;
     percentage: number;
   }>;
+  activeTargets?: Array<{
+    nama: string;
+    nominalTarget: number;
+    progress: number;
+    percentage: number;
+    status: string;
+  }>;
 }
 
 export const exportToPDF = async (data: ExportData) => {
