@@ -201,6 +201,72 @@ const Pengaturan: React.FC = () => {
     });
   };
 
+  // Load email configuration
+  React.useEffect(() => {
+    const loadEmailConfig = async () => {
+      try {
+        const config = await emailService.loadConfig();
+        setEmailConfig(config);
+        setEmailForm(config);
+      } catch (error) {
+        console.error('Error loading email config:', error);
+      }
+    };
+    loadEmailConfig();
+  }, []);
+
+  const handleEditEmail = () => {
+    setEmailForm(emailConfig);
+    setEditingEmail(true);
+  };
+
+  const handleSaveEmail = async () => {
+    try {
+      await emailService.saveConfig(emailForm);
+      setEmailConfig(emailForm);
+      setEditingEmail(false);
+      toast({
+        title: "Pengaturan Email Berhasil Disimpan",
+        description: "Konfigurasi notifikasi email telah diperbarui.",
+      });
+    } catch (error) {
+      toast({
+        title: "Gagal Menyimpan Pengaturan Email",
+        description: "Terjadi kesalahan saat menyimpan konfigurasi email.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancelEmailEdit = () => {
+    setEditingEmail(false);
+    setEmailForm(emailConfig);
+  };
+
+  const handleTestEmail = async () => {
+    try {
+      const isValid = await emailService.testConnection();
+      if (isValid) {
+        toast({
+          title: "Konfigurasi Email Valid",
+          description: "Pengaturan email sudah benar dan siap digunakan.",
+        });
+      } else {
+        toast({
+          title: "Konfigurasi Email Tidak Lengkap",
+          description: "Harap lengkapi semua field yang diperlukan.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error Testing Email",
+        description: "Terjadi kesalahan saat mengetes konfigurasi email.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
       <div>
