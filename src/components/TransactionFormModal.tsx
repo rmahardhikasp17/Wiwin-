@@ -168,7 +168,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
       style={{ touchAction: 'none' }}
     >
       <div
-        className="bg-white rounded-xl shadow-lg w-full max-w-md flex flex-col"
+        className="bg-white rounded-xl shadow-lg w-full max-w-md flex flex-col relative"
         style={{
           maxHeight: 'calc(100dvh - 2rem)',
           height: 'fit-content',
