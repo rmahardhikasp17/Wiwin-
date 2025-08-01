@@ -201,7 +201,6 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
             id="transaction-form"
             onSubmit={handleSubmit}
             className="p-4 sm:p-6 space-y-4 sm:space-y-5"
-            style={{ paddingBottom: 'calc(6rem + env(safe-area-inset-bottom))' }}
           >
             {/* 1. Transaction Type - First Field */}
             <div>
