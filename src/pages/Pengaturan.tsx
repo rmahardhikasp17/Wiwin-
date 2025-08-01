@@ -6,9 +6,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Download, Upload, Trash2, Sun, Moon, Monitor, User, Save } from 'lucide-react';
+import { Download, Upload, Trash2, Sun, Moon, Monitor, User, Save, Mail, Bell } from 'lucide-react';
 import { db } from '@/services/database';
 import { useUserSettings } from '@/hooks/useUserSettings';
+import { emailService, EmailConfig } from '@/services/emailService';
 
 const Pengaturan: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
@@ -19,6 +20,13 @@ const Pengaturan: React.FC = () => {
   const [profileForm, setProfileForm] = useState({
     userName: '',
     userEmail: ''
+  });
+  const [emailConfig, setEmailConfig] = useState<EmailConfig>({
+    enabled: false
+  });
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [emailForm, setEmailForm] = useState<EmailConfig>({
+    enabled: false
   });
 
   // Export data to JSON
@@ -193,6 +201,72 @@ const Pengaturan: React.FC = () => {
     });
   };
 
+  // Load email configuration
+  React.useEffect(() => {
+    const loadEmailConfig = async () => {
+      try {
+        const config = await emailService.loadConfig();
+        setEmailConfig(config);
+        setEmailForm(config);
+      } catch (error) {
+        console.error('Error loading email config:', error);
+      }
+    };
+    loadEmailConfig();
+  }, []);
+
+  const handleEditEmail = () => {
+    setEmailForm(emailConfig);
+    setEditingEmail(true);
+  };
+
+  const handleSaveEmail = async () => {
+    try {
+      await emailService.saveConfig(emailForm);
+      setEmailConfig(emailForm);
+      setEditingEmail(false);
+      toast({
+        title: "Pengaturan Email Berhasil Disimpan",
+        description: "Konfigurasi notifikasi email telah diperbarui.",
+      });
+    } catch (error) {
+      toast({
+        title: "Gagal Menyimpan Pengaturan Email",
+        description: "Terjadi kesalahan saat menyimpan konfigurasi email.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancelEmailEdit = () => {
+    setEditingEmail(false);
+    setEmailForm(emailConfig);
+  };
+
+  const handleTestEmail = async () => {
+    try {
+      const isValid = await emailService.testConnection();
+      if (isValid) {
+        toast({
+          title: "Konfigurasi Email Valid",
+          description: "Pengaturan email sudah benar dan siap digunakan.",
+        });
+      } else {
+        toast({
+          title: "Konfigurasi Email Tidak Lengkap",
+          description: "Harap lengkapi semua field yang diperlukan.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error Testing Email",
+        description: "Terjadi kesalahan saat mengetes konfigurasi email.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
       <div>
@@ -299,6 +373,132 @@ const Pengaturan: React.FC = () => {
               Sistem
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Email Notification Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="h-5 w-5" />
+            Notifikasi Email
+          </CardTitle>
+          <CardDescription>
+            Konfigurasi email untuk menerima notifikasi otomatis
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {editingEmail ? (
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="email-enabled"
+                  checked={emailForm.enabled}
+                  onCheckedChange={(enabled) => setEmailForm(prev => ({ ...prev, enabled }))}
+                />
+                <Label htmlFor="email-enabled">Aktifkan notifikasi email</Label>
+              </div>
+
+              {emailForm.enabled && (
+                <>
+                  <div>
+                    <Label htmlFor="smtpHost">SMTP Host</Label>
+                    <Input
+                      id="smtpHost"
+                      value={emailForm.smtpHost || ''}
+                      onChange={(e) => setEmailForm(prev => ({ ...prev, smtpHost: e.target.value }))}
+                      placeholder="smtp.gmail.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="smtpPort">SMTP Port</Label>
+                    <Input
+                      id="smtpPort"
+                      type="number"
+                      value={emailForm.smtpPort || 587}
+                      onChange={(e) => setEmailForm(prev => ({ ...prev, smtpPort: parseInt(e.target.value) }))}
+                      placeholder="587"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="smtpUser">Email/Username</Label>
+                    <Input
+                      id="smtpUser"
+                      type="email"
+                      value={emailForm.smtpUser || ''}
+                      onChange={(e) => setEmailForm(prev => ({ ...prev, smtpUser: e.target.value }))}
+                      placeholder="your.email@gmail.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="smtpPassword">Password/App Password</Label>
+                    <Input
+                      id="smtpPassword"
+                      type="password"
+                      value={emailForm.smtpPassword || ''}
+                      onChange={(e) => setEmailForm(prev => ({ ...prev, smtpPassword: e.target.value }))}
+                      placeholder="Password atau App Password"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="fromEmail">Email Pengirim</Label>
+                    <Input
+                      id="fromEmail"
+                      type="email"
+                      value={emailForm.fromEmail || ''}
+                      onChange={(e) => setEmailForm(prev => ({ ...prev, fromEmail: e.target.value }))}
+                      placeholder="noreply@example.com"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="flex gap-2">
+                <Button onClick={handleSaveEmail} className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Simpan
+                </Button>
+                <Button variant="outline" onClick={handleCancelEmailEdit}>
+                  Batal
+                </Button>
+                {emailForm.enabled && (
+                  <Button variant="outline" onClick={handleTestEmail} className="flex items-center gap-2">
+                    <Bell className="h-4 w-4" />
+                    Test Koneksi
+                  </Button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h3 className="font-medium">
+                    Status: {emailConfig.enabled ? '✅ Aktif' : '❌ Tidak Aktif'}
+                  </h3>
+                  {emailConfig.enabled && emailConfig.smtpHost && (
+                    <p className="text-sm text-gray-600">Host: {emailConfig.smtpHost}</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Notifikasi untuk: peringatan anggaran, target tercapai, laporan bulanan
+                  </p>
+                </div>
+                <Button onClick={handleEditEmail} variant="outline">
+                  Konfigurasi Email
+                </Button>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-3">
+                <h4 className="font-medium text-blue-800 mb-2">💡 Tips Konfigurasi Email:</h4>
+                <ul className="list-disc list-inside space-y-1 text-blue-700 text-sm">
+                  <li>Untuk Gmail, gunakan App Password bukan password biasa</li>
+                  <li>Aktifkan 2-Factor Authentication dan buat App Password di akun Google</li>
+                  <li>SMTP Host Gmail: smtp.gmail.com, Port: 587</li>
+                  <li>Notifikasi akan dikirim ke email yang terdaftar di profil</li>
+                </ul>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
