@@ -190,10 +190,16 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         </div>
 
         {/* Form Content */}
-        <div className="flex-1 overflow-y-auto">
-          <form 
-            id="transaction-form" 
-            onSubmit={handleSubmit} 
+        <div
+          className="flex-1 overflow-y-auto"
+          style={{
+            maxHeight: 'calc(100dvh - 8rem)',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
+          <form
+            id="transaction-form"
+            onSubmit={handleSubmit}
             className="p-4 sm:p-6 space-y-4 sm:space-y-5"
             style={{ paddingBottom: 'calc(6rem + env(safe-area-inset-bottom))' }}
           >
