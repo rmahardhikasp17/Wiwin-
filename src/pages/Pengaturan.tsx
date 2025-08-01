@@ -21,6 +21,13 @@ const Pengaturan: React.FC = () => {
     userName: '',
     userEmail: ''
   });
+  const [emailConfig, setEmailConfig] = useState<EmailConfig>({
+    enabled: false
+  });
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [emailForm, setEmailForm] = useState<EmailConfig>({
+    enabled: false
+  });
 
   // Export data to JSON
   const handleExportData = async () => {
