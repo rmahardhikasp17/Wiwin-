@@ -143,15 +143,36 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
     return formData.amount && formData.description && formData.category && formData.type;
   };
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div 
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      style={{ touchAction: 'none' }}
+    >
+      <div
         className="bg-white rounded-xl shadow-lg w-full max-w-md flex flex-col"
-        style={{ 
+        style={{
           maxHeight: 'calc(100dvh - 2rem)',
-          height: 'fit-content'
+          height: 'fit-content',
+          touchAction: 'auto'
         }}
       >
         {/* Header */}
