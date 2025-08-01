@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Category, Transaction, db } from '../services/database';
@@ -116,9 +115,9 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             {editingTransaction ? 'Edit Transaksi' : 'Tambah Transaksi'}
           </h2>
           <button
@@ -129,197 +128,213 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="income"
-                checked={formData.type === 'income'}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer_to_target', category: '', targetId: '' })}
-                className="mr-2 text-emerald-600"
-              />
-              <span className="text-emerald-600 font-medium">Pemasukan</span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="expense"
-                checked={formData.type === 'expense'}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer_to_target', category: '', targetId: '' })}
-                className="mr-2 text-red-600"
-              />
-              <span className="text-red-600 font-medium">Pengeluaran</span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="transfer_to_target"
-                checked={formData.type === 'transfer_to_target'}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer_to_target', category: '', targetId: '' })}
-                className="mr-2 text-blue-600"
-              />
-              <span className="text-blue-600 font-medium">🎯 Setor ke Target</span>
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Jumlah (Rp)
-            </label>
-            <input
-              type="text"
-              value={formData.amount}
-              onChange={(e) => {
-                const formatted = formatInputNumber(e.target.value);
-                setFormData({ ...formData, amount: formatted });
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
-              placeholder="0"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Deskripsi
-            </label>
-            <input
-              type="text"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
-              placeholder="Contoh: Makan siang"
-              required
-            />
-          </div>
-
-          {formData.type === 'transfer_to_target' ? (
+        <div className="flex-1 overflow-y-auto">
+          <form id="transaction-form" onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-3 sm:space-y-4 pb-32">
+            {/* Type Selection - First Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Pilih Target Tabungan
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tipe Transaksi
               </label>
-              <div className="space-y-2">
-                <div className="text-xs text-gray-500 font-medium">
-                  TARGET AKTIF PERIODE INI
-                </div>
-                <select
-                  value={formData.targetId}
-                  onChange={(e) => setFormData({ ...formData, targetId: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  required
-                >
-                  <option value="">Pilih target tabungan</option>
-                  {activeTargets.map((target) => (
-                    <option key={target.id} value={target.id}>
-                      {target.nama} (Target: {formatInputNumber(target.nominalTarget.toString())})
-                    </option>
-                  ))}
-                </select>
-                
-                {activeTargets.length > 0 && (
-                  <div className="bg-blue-50 rounded-lg p-3">
-                    <div className="text-xs font-medium text-blue-600 mb-2">
-                      Target Aktif:
+              <div className="grid grid-cols-1 gap-2">
+                <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="income"
+                    checked={formData.type === 'income'}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer_to_target', category: '', targetId: '' })}
+                    className="mr-3 text-emerald-600"
+                  />
+                  <span className="text-emerald-600 font-medium text-sm sm:text-base">💰 Pemasukan</span>
+                </label>
+                <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="expense"
+                    checked={formData.type === 'expense'}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer_to_target', category: '', targetId: '' })}
+                    className="mr-3 text-red-600"
+                  />
+                  <span className="text-red-600 font-medium text-sm sm:text-base">💸 Pengeluaran</span>
+                </label>
+                <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="transfer_to_target"
+                    checked={formData.type === 'transfer_to_target'}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer_to_target', category: '', targetId: '' })}
+                    className="mr-3 text-blue-600"
+                  />
+                  <span className="text-blue-600 font-medium text-sm sm:text-base">🎯 Setor ke Target</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Conditional Category/Target Selection - Only shows after type is selected */}
+            {formData.type !== '' && (
+              formData.type === 'transfer_to_target' ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Pilih Target Tabungan
+                  </label>
+                  <div className="space-y-2">
+                    <div className="text-xs text-gray-500 font-medium">
+                      TARGET AKTIF PERIODE INI
                     </div>
-                    <div className="space-y-1">
+                    <select
+                      value={formData.targetId}
+                      onChange={(e) => setFormData({ ...formData, targetId: e.target.value })}
+                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      required
+                    >
+                      <option value="">Pilih target tabungan</option>
                       {activeTargets.map((target) => (
-                        <div key={target.id} className="text-xs text-blue-700">
-                          🎯 {target.nama} - Target: {formatInputNumber(target.nominalTarget.toString())}
-                        </div>
+                        <option key={target.id} value={target.id}>
+                          {target.nama} (Target: {formatInputNumber(target.nominalTarget.toString())})
+                        </option>
                       ))}
-                    </div>
+                    </select>
+                    
+                    {activeTargets.length > 0 && (
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <div className="text-xs font-medium text-blue-600 mb-2">
+                          Target Aktif:
+                        </div>
+                        <div className="space-y-1">
+                          {activeTargets.map((target) => (
+                            <div key={target.id} className="text-xs text-blue-700">
+                              🎯 <span className="inline-block break-words">{target.nama}</span> - Target: {formatInputNumber(target.nominalTarget.toString())}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {activeTargets.length === 0 && !targetsLoading && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <div className="text-xs text-yellow-700">
+                          Tidak ada target aktif untuk periode ini. Silakan buat target di halaman Target.
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-                
-                {activeTargets.length === 0 && !targetsLoading && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    <div className="text-xs text-yellow-700">
-                      Tidak ada target aktif untuk periode ini. Silakan buat target di halaman Target.
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Kategori
+                  </label>
+                  <div className="space-y-2">
+                    <div className="text-xs text-gray-500 font-medium">
+                      {formData.type === 'income' ? 'KATEGORI PEMASUKAN' : 'KATEGORI PENGELUARAN'}
                     </div>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+                      required
+                    >
+                      <option value="">
+                        {formData.type === 'income' ? 'Pilih kategori pemasukan' : 'Pilih kategori pengeluaran'}
+                      </option>
+                      {currentCategories.map((category, index) => (
+                        <option key={`${category.id}-${index}`} value={category.name}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    
+                    {currentCategories.length > 0 && (
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="text-xs font-medium text-gray-600 mb-2">
+                          {formData.type === 'income' ? 'Kategori Pemasukan Tersedia:' : 'Kategori Pengeluaran Tersedia:'}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {currentCategories.map((category, index) => (
+                            <span
+                              key={`${category.id}-category-${index}`}
+                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                formData.type === 'income' 
+                                  ? 'bg-emerald-100 text-emerald-800' 
+                                  : 'bg-red-100 text-red-800'
+                              }`}
+                            >
+                              <span className="break-words" title={category.name}>{category.name}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          ) : (
+                </div>
+              )
+            )}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Kategori
+                Jumlah (Rp)
               </label>
-              <div className="space-y-2">
-                <div className="text-xs text-gray-500 font-medium">
-                  {formData.type === 'income' ? 'KATEGORI PEMASUKAN' : 'KATEGORI PENGELUARAN'}
-                </div>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
-                  required
-                >
-                  <option value="">
-                    {formData.type === 'income' ? 'Pilih kategori pemasukan' : 'Pilih kategori pengeluaran'}
-                  </option>
-                  {currentCategories.map((category) => (
-                    <option key={category.id} value={category.name}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                
-                {currentCategories.length > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-600 mb-2">
-                      {formData.type === 'income' ? 'Kategori Pemasukan Tersedia:' : 'Kategori Pengeluaran Tersedia:'}
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {currentCategories.map((category) => (
-                        <span
-                          key={category.id}
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            formData.type === 'income' 
-                              ? 'bg-emerald-100 text-emerald-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {category.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <input
+                type="text"
+                value={formData.amount}
+                onChange={(e) => {
+                  const formatted = formatInputNumber(e.target.value);
+                  setFormData({ ...formData, amount: formatted });
+                }}
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="0"
+                required
+              />
             </div>
-          )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tanggal
-            </label>
-            <input
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
-              required
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Deskripsi
+              </label>
+              <input
+                type="text"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="Contoh: Makan siang"
+                required
+              />
+            </div>
 
-          <div className="flex space-x-3 pt-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tanggal
+              </label>
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+                required
+              />
+            </div>
+
+          </form>
+        </div>
+        
+        {/* Fixed Save Button */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-[60] p-4">
+          <div className="max-w-md mx-auto flex space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base font-medium"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-emerald-500 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-emerald-600 hover:to-blue-700 transition-all duration-200 font-medium"
+              form="transaction-form"
+              className="flex-1 bg-gradient-to-r from-emerald-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-emerald-600 hover:to-blue-700 transition-all duration-200 font-medium text-sm sm:text-base"
             >
               {editingTransaction ? 'Update' : 'Simpan'}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
