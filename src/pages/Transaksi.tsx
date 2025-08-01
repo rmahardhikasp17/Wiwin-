@@ -72,6 +72,21 @@ const Transaksi: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                <label className="text-sm text-gray-600">Tipe:</label>
+                <Select value={selectedType} onValueChange={setSelectedType}>
+                  <SelectTrigger className="w-full sm:w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua</SelectItem>
+                    <SelectItem value="income">Pemasukan</SelectItem>
+                    <SelectItem value="expense">Pengeluaran</SelectItem>
+                    <SelectItem value="transfer_to_target">Transfer Target</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                 <label className="text-sm text-gray-600">Kategori:</label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="w-full sm:w-40">
@@ -90,21 +105,6 @@ const Transaksi: React.FC = () => {
                         </div>
                       </SelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
-                <label className="text-sm text-gray-600">Tipe:</label>
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-full sm:w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Semua</SelectItem>
-                    <SelectItem value="income">Pemasukan</SelectItem>
-                    <SelectItem value="expense">Pengeluaran</SelectItem>
-                    <SelectItem value="transfer_to_target">Transfer Target</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

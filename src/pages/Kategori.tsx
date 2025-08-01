@@ -237,14 +237,15 @@ const Kategori: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">Kelola Kategori</h1>
             <p className="text-gray-600 mt-1">Periode: {getFormattedSelection()}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               onClick={handleCopyLastMonthCategories}
               variant="outline"
-              className="text-blue-600 border-blue-600 hover:bg-blue-50"
+              size="sm"
+              className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs"
             >
-              <Copy className="h-4 w-4 mr-2" />
-              Salin Kategori Bulan Lalu
+              <Copy className="h-3 w-3 mr-1" />
+              Salin Bulan Lalu
             </Button>
             <Button
               onClick={() => setShowForm(!showForm)}
