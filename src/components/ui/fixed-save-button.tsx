@@ -26,8 +26,8 @@ export const FixedSaveButton: React.FC<FixedSaveButtonProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div 
-      className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-[60] p-4"
+    <div
+      className="absolute bottom-0 left-0 right-0 bg-white border-t shadow-lg z-10 p-4"
       style={{
         paddingBottom: `max(1rem, env(safe-area-inset-bottom))`,
         height: `calc(5rem + env(safe-area-inset-bottom))`
