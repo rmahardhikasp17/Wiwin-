@@ -5,7 +5,7 @@ import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useActiveTargets } from '../hooks/useActiveTargets';
 import { toast } from 'sonner';
 import { formatInputNumber, parseNumber } from '../utils/formatCurrency';
-import { FixedSaveButton } from './ui/fixed-save-button';
+
 
 interface TransactionFormModalProps {
   isOpen: boolean;
