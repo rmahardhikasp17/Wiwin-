@@ -6,9 +6,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Download, Upload, Trash2, Sun, Moon, Monitor, User, Save } from 'lucide-react';
+import { Download, Upload, Trash2, Sun, Moon, Monitor, User, Save, Mail, Bell } from 'lucide-react';
 import { db } from '@/services/database';
 import { useUserSettings } from '@/hooks/useUserSettings';
+import { emailService, EmailConfig } from '@/services/emailService';
 
 const Pengaturan: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
