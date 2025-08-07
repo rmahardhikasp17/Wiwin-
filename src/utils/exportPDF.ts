@@ -169,7 +169,9 @@ export const exportToPDF = async (data: ExportData) => {
       if (transaction.type === 'income') typeText = 'Masuk';
       else if (transaction.type === 'transfer_to_target') typeText = 'Target';
 
-      const amount = `${transaction.type === 'income' ? '+' : transaction.type === 'transfer_to_target' ? '🎯' : '-'}${formatCurrency(transaction.amount)}`;
+      const formattedAmount = formatCurrency(transaction.amount);
+      const prefix = transaction.type === 'income' ? '+' : transaction.type === 'transfer_to_target' ? 'Target ' : '-';
+      const amount = `${prefix}${formattedAmount}`;
 
       // Wrap description text
       const descriptionLines = wrapText(transaction.description, 40, 9);

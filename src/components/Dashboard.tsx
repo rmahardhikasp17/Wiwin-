@@ -134,8 +134,9 @@ const Dashboard: React.FC = () => {
 
 
   const getBudgetStatus = (percentage: number) => {
-    if (percentage >= 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Melebihi batas!' };
-    if (percentage >= 80) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Mendekati batas' };
+    if (percentage > 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Melebihi Batas' };
+    if (percentage === 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Telah Mencapai Batas' };
+    if (percentage >= 75) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Hampir Mencapai Batas' };
     return { color: 'text-emerald-600', bg: 'bg-emerald-500', status: 'Dalam batas' };
   };
 
@@ -290,7 +291,7 @@ const Dashboard: React.FC = () => {
                       value={category.percentage} 
                       className="h-2"
                     />
-                    {category.percentage >= 80 && (
+                    {category.percentage >= 75 && (
                       <p className={`text-xs ${status.color} font-medium`}>
                         ⚠️ {status.status}
                       </p>

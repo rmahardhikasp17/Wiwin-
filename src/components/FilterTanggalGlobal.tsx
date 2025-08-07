@@ -41,11 +41,11 @@ const FilterTanggalGlobal: React.FC = () => {
             <SelectTrigger className="flex-1 sm:w-28 lg:w-32 h-8 border-white/20 bg-white/10 text-white text-sm focus:ring-white/30">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-200">
+            <SelectContent className="bg-white border border-gray-200 z-50">
               {months.map((month) => (
                 <SelectItem key={month.value} value={month.value.toString()}>
-                  <span className="block sm:hidden">{month.label.substring(0, 3)}</span>
-                  <span className="hidden sm:block">{month.label}</span>
+                  <span className="block sm:hidden text-xs truncate">{month.label.substring(0, 3)}</span>
+                  <span className="hidden sm:block text-sm break-words">{month.label}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -55,7 +55,7 @@ const FilterTanggalGlobal: React.FC = () => {
             <SelectTrigger className="w-16 sm:w-20 h-8 border-white/20 bg-white/10 text-white text-sm focus:ring-white/30">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-200">
+            <SelectContent className="bg-white border border-gray-200 z-50">
               {years.map((year) => (
                 <SelectItem key={year} value={year.toString()}>
                   {year}

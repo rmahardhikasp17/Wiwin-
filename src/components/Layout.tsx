@@ -128,10 +128,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="px-3 sm:px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="bg-white/20 p-1.5 sm:p-2 rounded-lg">
-                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-              </div>
-              <h1 className="text-base sm:text-lg font-bold text-white">Gajiku</h1>
+              <h1 className="text-base sm:text-lg font-bold text-white">NEKAT DIGITAL - GAJIKU</h1>
             </div>
 
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -142,9 +139,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0">
                 <SheetHeader className="p-6 bg-gradient-to-r from-emerald-500 to-blue-600 text-white">
-                  <SheetTitle className="text-white flex items-center space-x-3">
-                    <Calendar className="h-6 w-6" />
-                    <span>Gajiku</span>
+                  <SheetTitle className="text-white">
+                    <span>NEKAT DIGITAL - GAJIKU</span>
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="p-4 space-y-2">
@@ -172,10 +168,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="bg-white/20 p-2 rounded-lg">
-                <Calendar className="h-6 w-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold text-white">Gajiku</h1>
+              <h1 className="text-2xl font-bold text-white">NEKAT DIGITAL - GAJIKU</h1>
             </div>
 
             {/* Desktop Filter */}
