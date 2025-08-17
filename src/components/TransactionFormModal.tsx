@@ -177,12 +177,12 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mr-4">
             {editingTransaction ? 'Edit Transaksi' : 'Tambah Transaksi'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"
+            className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 flex-shrink-0"
             disabled={isLoading}
           >
             <X className="h-5 w-5" />
@@ -307,7 +307,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+                      className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 bg-white"
                       required
                       disabled={isLoading}
                     >
@@ -330,14 +330,16 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                           {filteredCategories.map((category, index) => (
                             <span
                               key={`category-badge-${category.id}-${index}`}
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium break-words whitespace-normal ${
+                              className={`inline-flex items-center px-2 py-1 rounded-full font-medium break-words ${
                                 formData.type === 'income' 
-                                  ? 'bg-emerald-100 text-emerald-800' 
-                                  : 'bg-red-100 text-red-800'
+                                  ? 'bg-emerald-100 text-emerald-800 text-xs leading-tight' 
+                                  : 'bg-red-100 text-red-800 text-xs leading-tight'
                               }`}
                               title={category.name}
                             >
-                              <span className="break-words">{category.name}</span>
+                              <span className="break-words max-w-20 leading-tight">
+                                {category.name.length > 15 ? `${category.name.substring(0, 15)}...` : category.name}
+                              </span>
                             </span>
                           ))}
                         </div>

@@ -8,6 +8,7 @@ interface ExportData {
   totalIncome: number;
   totalExpense: number;
   totalBalance: number;
+  totalBudget?: number;
   transactions: Transaction[];
   categoryUsage: Array<{
     name: string;
@@ -87,7 +88,12 @@ export const exportToPDF = async (data: ExportData) => {
   addText(`Total Pengeluaran: ${formatCurrency(data.totalExpense)}`, margin, yPosition);
   yPosition += 10;
   addText(`Saldo: ${formatCurrency(data.totalBalance)}`, margin, yPosition, 12, true);
-  yPosition += 20;
+  yPosition += 10;
+  if (data.totalBudget && data.totalBudget > 0) {
+    addText(`Total Anggaran Bulanan: ${formatCurrency(data.totalBudget)}`, margin, yPosition, 12, true);
+    yPosition += 10;
+  }
+  yPosition += 10;
 
   // Active Targets Section
   if (data.activeTargets && data.activeTargets.length > 0) {

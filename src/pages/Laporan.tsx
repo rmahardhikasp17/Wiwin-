@@ -10,6 +10,7 @@ import { useDateFilterHelper } from '@/hooks/useDateFilterHelper';
 import { useTransactionsByPeriode } from '@/hooks/useTransactionsByPeriode';
 import { useKategoriByPeriode } from '@/hooks/useKategoriByPeriode';
 import { useTargetProgress } from '@/hooks/useTargetProgress';
+import { useTotalBudget } from '@/hooks/useTotalBudget';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { db } from '@/services/database';
 import TransactionTable from '@/components/TransactionTable';
@@ -39,6 +40,7 @@ const Laporan: React.FC = () => {
   const { transactions } = useTransactionsByPeriode();
   const { categories } = useKategoriByPeriode();
   const { getActiveTargetProgress } = useTargetProgress();
+  const { totalBudget } = useTotalBudget();
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [categoryUsage, setCategoryUsage] = useState<CategoryUsage[]>([]);
 
@@ -133,6 +135,7 @@ const Laporan: React.FC = () => {
       totalIncome,
       totalExpense,
       totalBalance,
+      totalBudget,
       transactions,
       categoryUsage: categoryUsage.map(cat => ({
         name: cat.name,
@@ -174,7 +177,7 @@ const Laporan: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Pemasukan</CardTitle>
@@ -206,6 +209,21 @@ const Laporan: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {totalBudget > 0 && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Anggaran</CardTitle>
+              <AlertCircle className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600">{formatCurrency(totalBudget)}</div>
+              <p className="text-xs text-gray-500 mt-1">
+                Sisa: {formatCurrency(Math.max(0, totalBudget - totalExpense))}
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Charts */}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, AlertTriangle, CheckCircle, Copy } from 'lucide-react';
+import { Plus, Edit, Trash2, AlertTriangle, CheckCircle, Copy, DollarSign } from 'lucide-react';
 import { db, Category } from '../services/database';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
+import { useTotalBudget } from '../hooks/useTotalBudget';
 import { formatCurrency, formatInputNumber, parseNumber } from '../utils/formatCurrency';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ interface CategoryWithSpending extends Category {
 const Kategori: React.FC = () => {
   const { categories: rawCategories, loading, addCategory, updateCategory, deleteCategory: removeCategory, getCategorySpending } = useKategoriByPeriode();
   const { bulan, tahun, getFormattedSelection } = useDateFilterHelper();
+  const { totalBudget } = useTotalBudget();
   const [categories, setCategories] = useState<CategoryWithSpending[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -256,6 +258,27 @@ const Kategori: React.FC = () => {
             </Button>
           </div>
         </div>
+
+        {/* Total Budget Summary */}
+        {totalBudget > 0 && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <DollarSign className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Total Anggaran Bulanan</h3>
+                  <p className="text-sm text-gray-600">Periode: {getFormattedSelection()}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalBudget)}</p>
+                <p className="text-sm text-gray-500">Total dari semua kategori pengeluaran</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Form Add/Edit Category */}
         {showForm && (

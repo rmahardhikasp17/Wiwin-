@@ -7,6 +7,7 @@ import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
 import { useUserSettings } from '../hooks/useUserSettings';
 import { formatCurrency } from '../utils/formatCurrency';
 import { useTargetProgress } from '@/hooks/useTargetProgress';
+import { useTotalBudget } from '@/hooks/useTotalBudget';
 import TransactionFormModal from './TransactionFormModal';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -33,6 +34,7 @@ const Dashboard: React.FC = () => {
   const { getFormattedSelection } = useDateFilterHelper();
   const { getActiveTargetProgress } = useTargetProgress();
   const { userSettings } = useUserSettings();
+  const { totalBudget } = useTotalBudget();
   
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [totalIncome, setTotalIncome] = useState(0);
@@ -134,9 +136,9 @@ const Dashboard: React.FC = () => {
 
 
   const getBudgetStatus = (percentage: number) => {
-    if (percentage > 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Melebihi Batas' };
-    if (percentage === 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Telah Mencapai Batas' };
-    if (percentage >= 75) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Hampir Mencapai Batas' };
+    if (percentage > 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Melebihi batas!' };
+    if (percentage === 100) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Mencapai batas' };
+    if (percentage >= 80) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Mendekati batas' };
     return { color: 'text-emerald-600', bg: 'bg-emerald-500', status: 'Dalam batas' };
   };
 
@@ -262,6 +264,14 @@ const Dashboard: React.FC = () => {
             <AlertTriangle className="h-5 w-5 mr-2" />
             Monitor Anggaran
           </h2>
+          {totalBudget > 0 && (
+            <div className="bg-blue-50 rounded-lg p-3 mb-4">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-blue-800">Total Anggaran Bulanan:</span>
+                <span className="text-sm font-bold text-blue-900">{formatCurrency(totalBudget)}</span>
+              </div>
+            </div>
+          )}
           <div className="space-y-4">
             {categoryBudgets.length === 0 ? (
               <p className="text-gray-500 text-center py-8">Belum ada kategori dengan batas anggaran</p>

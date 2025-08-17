@@ -77,7 +77,7 @@ const Transaksi: React.FC = () => {
                   <SelectTrigger className="w-full sm:w-32">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white z-50">
                     <SelectItem value="all">Semua</SelectItem>
                     <SelectItem value="income">Pemasukan</SelectItem>
                     <SelectItem value="expense">Pengeluaran</SelectItem>
@@ -92,19 +92,33 @@ const Transaksi: React.FC = () => {
                   <SelectTrigger className="w-full sm:w-40">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white z-50 max-h-[200px] overflow-y-auto">
                     <SelectItem value="all">Semua Kategori</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.name}>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: category.color }}
-                          />
-                          {category.name}
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {(() => {
+                      // Filter categories based on selected type and remove duplicates
+                      const filteredCategories = selectedType === 'all' ? categories : 
+                        selectedType === 'transfer_to_target' ? [] :
+                        categories.filter(cat => cat.type === selectedType);
+                      
+                      // Remove duplicates by creating a Map with unique names
+                      const uniqueCategories = Array.from(
+                        new Map(filteredCategories.map(cat => [cat.name, cat])).values()
+                      );
+                      
+                      return uniqueCategories.map((category) => (
+                        <SelectItem key={category.id} value={category.name}>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: category.color }}
+                            />
+                            <span className="text-sm break-words">
+                              {category.name}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ));
+                    })()}
                   </SelectContent>
                 </Select>
               </div>
