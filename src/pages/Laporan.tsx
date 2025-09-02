@@ -165,12 +165,12 @@ const Laporan: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Laporan Keuangan</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-white">Laporan Keuangan</h1>
+          <p className="text-gray-400 mt-1">
             Visualisasi dan analisis laporan untuk {getMonthName(bulan)} {tahun}
           </p>
         </div>
-        <Button onClick={handleExportPDF} className="flex items-center gap-2">
+        <Button onClick={handleExportPDF} className="flex items-center gap-2 bg-[#D0021B] hover:bg-[#b00218] text-white">
           <FileDown className="h-4 w-4" />
           Export PDF
         </Button>
