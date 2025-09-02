@@ -50,8 +50,8 @@ const Transaksi: React.FC = () => {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Manajemen Transaksi</h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">Kelola semua transaksi pemasukan dan pengeluaran Anda</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">Manajemen Transaksi</h1>
+            <p className="text-gray-400 mt-1 text-sm sm:text-base">Kelola semua transaksi pemasukan dan pengeluaran Anda</p>
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
