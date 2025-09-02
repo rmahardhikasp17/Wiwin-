@@ -82,7 +82,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         onClick={onClick}
         className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
           isActive
-            ? 'bg-gradient-to-r from-emerald-500 to-blue-600 text-white shadow-md transform scale-[0.98]'
+            ? 'bg-gradient-to-r from-neutral-900 to-amber-600 text-white shadow-md transform scale-[0.98]'
             : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:scale-[0.98]'
         }`}
       >
@@ -111,7 +111,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         aria-label={`Navigasi ke ${item.label}`}
         className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 min-w-0 flex-1 max-w-[80px] touch-target ${
           isActive
-            ? 'text-emerald-600 bg-emerald-50 shadow-sm'
+            ? 'text-amber-700 bg-amber-50 shadow-sm'
             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 active:bg-gray-100 active:scale-95'
         }`}
       >
@@ -122,9 +122,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 to-neutral-900 flex flex-col">
       {/* Mobile Header */}
-      <header className="bg-gradient-to-r from-emerald-500 to-blue-600 shadow-lg lg:hidden flex-shrink-0">
+      <header className="bg-gradient-to-r from-neutral-900 to-amber-600 shadow-lg lg:hidden flex-shrink-0">
         <div className="px-3 sm:px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-3">
@@ -138,7 +138,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0">
-                <SheetHeader className="p-6 bg-gradient-to-r from-emerald-500 to-blue-600 text-white">
+                <SheetHeader className="p-6 bg-gradient-to-r from-neutral-900 to-amber-600 text-white">
                   <SheetTitle className="text-white">
                     <span>NEKAT DIGITAL - GAJIKU</span>
                   </SheetTitle>
@@ -164,7 +164,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </header>
 
       {/* Desktop Header */}
-      <header className="bg-gradient-to-r from-emerald-500 to-blue-600 shadow-lg hidden lg:block flex-shrink-0">
+      <header className="bg-gradient-to-r from-neutral-900 to-amber-600 shadow-lg hidden lg:block flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
@@ -223,7 +223,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               aria-expanded={mobileMenuOpen}
               className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 touch-target ${
                 mobileMenuOpen
-                  ? 'text-emerald-600 bg-emerald-50'
+                  ? 'text-amber-700 bg-amber-50'
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 active:bg-gray-100'
               }`}
             >

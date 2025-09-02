@@ -1,0 +1,27 @@
+{
+  "transactions": [
+    {"type":"income","amount":5000000,"description":"Gaji September","category":"Gaji","date":"2025-09-01","createdAt":"2025-09-01T08:00:00.000Z"},
+    {"type":"income","amount":2000000,"description":"Project Website A","category":"Freelance","date":"2025-09-05","createdAt":"2025-09-05T09:00:00.000Z"},
+    {"type":"expense","amount":50000,"description":"Makan siang","category":"Makanan","date":"2025-09-02","createdAt":"2025-09-02T12:00:00.000Z"},
+    {"type":"expense","amount":30000,"description":"Transport online","category":"Transport","date":"2025-09-03","createdAt":"2025-09-03T08:30:00.000Z"},
+    {"type":"expense","amount":350000,"description":"Belanja bulanan","category":"Belanja","date":"2025-09-04","createdAt":"2025-09-04T10:00:00.000Z"},
+    {"type":"expense","amount":80000,"description":"Nonton bioskop","category":"Hiburan","date":"2025-09-07","createdAt":"2025-09-07T19:00:00.000Z"},
+    {"type":"expense","amount":70000,"description":"Makan malam","category":"Makanan","date":"2025-09-08","createdAt":"2025-09-08T18:30:00.000Z"},
+    {"type":"expense","amount":150000,"description":"Isi bensin","category":"Transport","date":"2025-09-10","createdAt":"2025-09-10T09:15:00.000Z"},
+    {"type":"income","amount":1200000,"description":"Project Design B","category":"Freelance","date":"2025-09-12","createdAt":"2025-09-12T11:00:00.000Z"},
+    {"type":"expense","amount":250000,"description":"Belanja pakaian","category":"Belanja","date":"2025-09-15","createdAt":"2025-09-15T14:00:00.000Z"}
+  ],
+  "categories": [
+    {"name":"Gaji","type":"income","color":"#10B981","bulan":9,"tahun":2025,"createdAt":"2025-09-01T00:00:00.000Z"},
+    {"name":"Freelance","type":"income","color":"#059669","bulan":9,"tahun":2025,"createdAt":"2025-09-01T00:00:00.000Z"},
+    {"name":"Makanan","type":"expense","budgetLimit":500000,"color":"#EF4444","bulan":9,"tahun":2025,"createdAt":"2025-09-01T00:00:00.000Z"},
+    {"name":"Transport","type":"expense","budgetLimit":200000,"color":"#F97316","bulan":9,"tahun":2025,"createdAt":"2025-09-01T00:00:00.000Z"},
+    {"name":"Hiburan","type":"expense","budgetLimit":300000,"color":"#8B5CF6","bulan":9,"tahun":2025,"createdAt":"2025-09-01T00:00:00.000Z"},
+    {"name":"Belanja","type":"expense","budgetLimit":400000,"color":"#EC4899","bulan":9,"tahun":2025,"createdAt":"2025-09-01T00:00:00.000Z"}
+  ],
+  "settings": [
+    {"key":"userName","value":"Pengguna"}
+  ],
+  "exportDate":"2025-09-01T00:00:00.000Z",
+  "version":"1.0"
+}

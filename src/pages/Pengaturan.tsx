@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Download, Upload, Trash2, Sun, Moon, Monitor, User, Save, Mail, Bell } from 'lucide-react';
 import { db } from '@/services/database';
+import { useDateFilterHelper } from '@/hooks/useDateFilterHelper';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { emailService, EmailConfig } from '@/services/emailService';
 
@@ -28,6 +29,119 @@ const Pengaturan: React.FC = () => {
   const [emailForm, setEmailForm] = useState<EmailConfig>({
     enabled: false
   });
+  const { bulan, tahun, getMonthName } = useDateFilterHelper();
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const handleSeedDemoAppend = async () => {
+    if (isSeeding) return;
+    setIsSeeding(true);
+    try {
+      // 1) Ensure baseline categories for current period
+      const desiredCategories = [
+        { name: 'Gaji', type: 'income' as const, color: '#10B981' },
+        { name: 'Freelance', type: 'income' as const, color: '#059669' },
+        { name: 'Makanan', type: 'expense' as const, color: '#EF4444', budgetLimit: 500000 },
+        { name: 'Transport', type: 'expense' as const, color: '#F97316', budgetLimit: 200000 },
+        { name: 'Hiburan', type: 'expense' as const, color: '#8B5CF6', budgetLimit: 300000 },
+        { name: 'Belanja', type: 'expense' as const, color: '#EC4899', budgetLimit: 400000 }
+      ];
+
+      const existingThisPeriod = await db.categories
+        .where(['bulan','tahun'])
+        .equals([bulan, tahun])
+        .toArray();
+
+      const toAddCats = desiredCategories.filter(dc => !existingThisPeriod.some(c => c.name === dc.name && c.type === dc.type));
+      if (toAddCats.length) {
+        await db.categories.bulkAdd(toAddCats.map(c => ({
+          name: c.name,
+          type: c.type,
+          budgetLimit: c.budgetLimit,
+          color: c.color,
+          bulan,
+          tahun,
+          createdAt: new Date()
+        })));
+      }
+
+      // 2) Ensure some targets exist
+      const existingTargets = await db.targets.toArray();
+      let targetIds = existingTargets.map(t => t.id!).filter(Boolean);
+      if (targetIds.length === 0) {
+        const now = new Date();
+        const addedIds = await db.targets.bulkAdd([
+          {
+            nama: 'Liburan Bali',
+            nominalTarget: 5000000,
+            bulanMulai: now.getMonth() + 1,
+            tahunMulai: now.getFullYear(),
+            bulanSelesai: ((now.getMonth() + 1 + 6 - 1) % 12) + 1,
+            tahunSelesai: now.getFullYear() + (now.getMonth() + 1 + 6 > 12 ? 1 : 0),
+            createdAt: new Date()
+          },
+          {
+            nama: 'Dana Darurat',
+            nominalTarget: 10000000,
+            bulanMulai: now.getMonth() + 1,
+            tahunMulai: now.getFullYear(),
+            bulanSelesai: ((now.getMonth() + 1 + 12 - 1) % 12) + 1,
+            tahunSelesai: now.getFullYear() + (now.getMonth() + 1 + 12 > 12 ? 1 : 0),
+            createdAt: new Date()
+          }
+        ], { allKeys: true } as any);
+        // Dexie returns keys if allKeys supported; fallback get again
+        const refreshed = await db.targets.toArray();
+        targetIds = refreshed.map(t => t.id!).filter(Boolean);
+      }
+
+      const anyTargetId = targetIds[0];
+
+      // 3) Append transactions in current bulan/tahun
+      const pad2 = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+      const dateStr = (d: number) => `${tahun}-${pad2(bulan)}-${pad2(d)}`;
+
+      const tx = [
+        { type: 'income', amount: 5000000, description: 'Gaji Bulanan', category: 'Gaji', date: dateStr(1) },
+        { type: 'income', amount: 1500000, description: 'Proyek Website', category: 'Freelance', date: dateStr(3) },
+        { type: 'expense', amount: 45000, description: 'Sarapan', category: 'Makanan', date: dateStr(2) },
+        { type: 'expense', amount: 60000, description: 'Transport Online', category: 'Transport', date: dateStr(4) },
+        { type: 'expense', amount: 120000, description: 'Belanja Harian', category: 'Belanja', date: dateStr(5) },
+        { type: 'expense', amount: 80000, description: 'Nonton', category: 'Hiburan', date: dateStr(6) },
+        { type: 'expense', amount: 70000, description: 'Makan Malam', category: 'Makanan', date: dateStr(8) },
+        { type: 'expense', amount: 150000, description: 'Isi Bensin', category: 'Transport', date: dateStr(10) },
+        { type: 'income', amount: 1000000, description: 'Project Design', category: 'Freelance', date: dateStr(12) },
+        { type: 'expense', amount: 250000, description: 'Belanja Pakaian', category: 'Belanja', date: dateStr(15) },
+        { type: 'income', amount: 500000, description: 'Bonus Kecil', category: 'Gaji', date: dateStr(16) },
+        { type: 'expense', amount: 95000, description: 'Makan Siang', category: 'Makanan', date: dateStr(17) },
+        { type: 'expense', amount: 40000, description: 'Parkir & Tol', category: 'Transport', date: dateStr(18) },
+        { type: 'transfer_to_target', amount: 300000, description: 'Setor ke Target', category: 'Transfer ke Target', date: dateStr(19), targetId: anyTargetId },
+        { type: 'expense', amount: 150000, description: 'Nongkrong', category: 'Hiburan', date: dateStr(20) }
+      ] as const;
+
+      await db.transactions.bulkAdd(tx.map(t => ({
+        type: t.type as any,
+        amount: t.amount,
+        description: t.description,
+        category: t.type === 'transfer_to_target' ? 'Transfer ke Target' : t.category,
+        date: t.date,
+        targetId: (t as any).targetId,
+        createdAt: new Date()
+      })));
+
+      toast({
+        title: 'Data Demo Ditambahkan',
+        description: `Kategori, target, dan transaksi contoh ditambahkan untuk ${getMonthName(bulan)} ${tahun}.`,
+      });
+    } catch (err) {
+      console.error('Seed demo error:', err);
+      toast({
+        title: 'Gagal Menambahkan Data Demo',
+        description: 'Terjadi kesalahan saat membuat data contoh.',
+        variant: 'destructive',
+      });
+    }
+    setIsSeeding(false);
+  };
 
   // Export data to JSON
   const handleExportData = async () => {
@@ -81,26 +195,70 @@ const Pengaturan: React.FC = () => {
       try {
         const jsonData = JSON.parse(e.target?.result as string);
         
-        // Validate data structure
-        if (!jsonData.transactions || !jsonData.categories) {
+        // Validate and normalize data structure
+        // Tolerant parsing: support various shapes and partial content
+        let raw: any = null;
+        if (jsonData && typeof jsonData === 'object') {
+          if (jsonData.transactions || jsonData.categories || jsonData.settings) {
+            raw = jsonData;
+          } else if (jsonData.data && (jsonData.data.transactions || jsonData.data.categories)) {
+            raw = jsonData.data;
+          } else if (Array.isArray((jsonData as any).items)) {
+            raw = { transactions: (jsonData as any).items };
+          }
+        } else if (Array.isArray(jsonData)) {
+          raw = { transactions: jsonData };
+        }
+
+        if (!raw) {
           throw new Error('Invalid backup file format');
         }
 
-        // Clear existing data
+        const txArray = Array.isArray(raw.transactions) ? raw.transactions : [];
+        const catArray = Array.isArray(raw.categories) ? raw.categories : [];
+        const settingsArray = Array.isArray(raw.settings) ? raw.settings : [];
+
+        // If everything is empty, reject
+        if (txArray.length === 0 && catArray.length === 0 && settingsArray.length === 0) {
+          throw new Error('Invalid backup file format');
+        }
+
+        const normalizeTransactions = txArray.map((t: any) => ({
+          type: t.type,
+          amount: typeof t.amount === 'string' ? parseFloat(t.amount) : Number(t.amount),
+          description: t.description || '',
+          category: t.category || (t.type === 'transfer_to_target' ? 'Transfer ke Target' : ''),
+          date: t.date,
+          targetId: t.targetId ?? (t.target_id ?? undefined),
+          createdAt: t.createdAt ? new Date(t.createdAt) : new Date()
+        }));
+
+        const normalizeCategories = catArray.map((c: any) => ({
+          name: c.name || c.title,
+          type: c.type,
+          budgetLimit: typeof c.budgetLimit === 'string' ? parseFloat(c.budgetLimit) : (c.budgetLimit ?? undefined),
+          color: c.color || '#999999',
+          bulan: c.bulan ?? new Date().getMonth() + 1,
+          tahun: c.tahun ?? new Date().getFullYear(),
+          createdAt: c.createdAt ? new Date(c.createdAt) : new Date()
+        }));
+
+        const normalizeSettings = settingsArray;
+
+        // Clear existing data and import
         await db.transaction('rw', db.transactions, db.categories, db.settings, async () => {
           await db.transactions.clear();
           await db.categories.clear();
           await db.settings.clear();
 
-          // Import data
-          if (jsonData.transactions.length > 0) {
-            await db.transactions.bulkAdd(jsonData.transactions);
+          if (normalizeTransactions.length > 0) {
+            await db.transactions.bulkAdd(normalizeTransactions);
           }
-          if (jsonData.categories.length > 0) {
-            await db.categories.bulkAdd(jsonData.categories);
+          if (normalizeCategories.length > 0) {
+            await db.categories.bulkAdd(normalizeCategories);
           }
-          if (jsonData.settings?.length > 0) {
-            await db.settings.bulkAdd(jsonData.settings);
+          if (normalizeSettings.length > 0) {
+            await db.settings.bulkAdd(normalizeSettings);
           }
         });
 
@@ -544,6 +702,17 @@ const Pengaturan: React.FC = () => {
                 </label>
               </Button>
             </div>
+          </div>
+
+          {/* Demo Data Seed */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div>
+              <h3 className="font-medium">Isi Data Demo</h3>
+              <p className="text-sm text-gray-600">Tambahkan kategori, target, dan 15 transaksi contoh (append)</p>
+            </div>
+            <Button onClick={handleSeedDemoAppend} disabled={isSeeding}>
+              {isSeeding ? 'Menambahkan...' : 'Isi Data Demo'}
+            </Button>
           </div>
 
           {/* Reset Data */}

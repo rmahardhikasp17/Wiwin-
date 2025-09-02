@@ -115,7 +115,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                 <div className="flex items-center space-x-4">
                   <div className={`p-2 rounded-lg ${
                     transaction.type === 'income' 
-                      ? 'bg-emerald-100 text-emerald-600' 
+                      ? 'bg-amber-100 text-amber-700' 
                       : transaction.type === 'transfer_to_target'
                       ? 'bg-blue-100 text-blue-600'
                       : 'bg-red-100 text-red-600'
@@ -148,7 +148,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                 <div className="flex items-center space-x-3">
                   <span className={`font-semibold ${
                     transaction.type === 'income' 
-                      ? 'text-emerald-600' 
+                      ? 'text-amber-700' 
                       : transaction.type === 'transfer_to_target'
                       ? 'text-blue-600'
                       : 'text-red-600'
