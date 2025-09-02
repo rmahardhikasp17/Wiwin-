@@ -115,12 +115,12 @@ const TargetPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Target Tabungan</h1>
-          <p className="text-gray-600 mt-1">Kelola dan pantau target keuangan Anda</p>
+          <h1 className="text-2xl font-bold text-white">Target Tabungan</h1>
+          <p className="text-gray-400 mt-1">Kelola dan pantau target keuangan Anda</p>
         </div>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center gap-2 bg-[#926C15] hover:bg-[#7a5912] text-white">
               <Plus className="h-4 w-4" />
               Tambah Target
             </Button>
