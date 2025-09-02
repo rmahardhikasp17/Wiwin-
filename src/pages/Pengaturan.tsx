@@ -82,36 +82,54 @@ const Pengaturan: React.FC = () => {
         const jsonData = JSON.parse(e.target?.result as string);
         
         // Validate and normalize data structure
-        const raw = (jsonData && typeof jsonData === 'object')
-          ? (jsonData.transactions && jsonData.categories ? jsonData
-            : (jsonData.data && jsonData.data.transactions && jsonData.data.categories ? jsonData.data : null))
-          : null;
+        // Tolerant parsing: support various shapes and partial content
+        let raw: any = null;
+        if (jsonData && typeof jsonData === 'object') {
+          if (jsonData.transactions || jsonData.categories || jsonData.settings) {
+            raw = jsonData;
+          } else if (jsonData.data && (jsonData.data.transactions || jsonData.data.categories)) {
+            raw = jsonData.data;
+          } else if (Array.isArray((jsonData as any).items)) {
+            raw = { transactions: (jsonData as any).items };
+          }
+        } else if (Array.isArray(jsonData)) {
+          raw = { transactions: jsonData };
+        }
 
         if (!raw) {
           throw new Error('Invalid backup file format');
         }
 
-        const normalizeTransactions = Array.isArray(raw.transactions) ? raw.transactions.map((t: any) => ({
+        const txArray = Array.isArray(raw.transactions) ? raw.transactions : [];
+        const catArray = Array.isArray(raw.categories) ? raw.categories : [];
+        const settingsArray = Array.isArray(raw.settings) ? raw.settings : [];
+
+        // If everything is empty, reject
+        if (txArray.length === 0 && catArray.length === 0 && settingsArray.length === 0) {
+          throw new Error('Invalid backup file format');
+        }
+
+        const normalizeTransactions = txArray.map((t: any) => ({
           type: t.type,
-          amount: typeof t.amount === 'string' ? parseFloat(t.amount) : t.amount,
+          amount: typeof t.amount === 'string' ? parseFloat(t.amount) : Number(t.amount),
           description: t.description || '',
           category: t.category || (t.type === 'transfer_to_target' ? 'Transfer ke Target' : ''),
           date: t.date,
-          targetId: t.targetId,
+          targetId: t.targetId ?? (t.target_id ?? undefined),
           createdAt: t.createdAt ? new Date(t.createdAt) : new Date()
-        })) : [];
+        }));
 
-        const normalizeCategories = Array.isArray(raw.categories) ? raw.categories.map((c: any) => ({
-          name: c.name,
+        const normalizeCategories = catArray.map((c: any) => ({
+          name: c.name || c.title,
           type: c.type,
-          budgetLimit: typeof c.budgetLimit === 'string' ? parseFloat(c.budgetLimit) : c.budgetLimit,
-          color: c.color,
-          bulan: c.bulan,
-          tahun: c.tahun,
+          budgetLimit: typeof c.budgetLimit === 'string' ? parseFloat(c.budgetLimit) : (c.budgetLimit ?? undefined),
+          color: c.color || '#999999',
+          bulan: c.bulan ?? new Date().getMonth() + 1,
+          tahun: c.tahun ?? new Date().getFullYear(),
           createdAt: c.createdAt ? new Date(c.createdAt) : new Date()
-        })) : [];
+        }));
 
-        const normalizeSettings = Array.isArray(raw.settings) ? raw.settings : [];
+        const normalizeSettings = settingsArray;
 
         // Clear existing data and import
         await db.transaction('rw', db.transactions, db.categories, db.settings, async () => {
