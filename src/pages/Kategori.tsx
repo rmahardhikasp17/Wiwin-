@@ -200,7 +200,7 @@ const Kategori: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'safe':
-        return <CheckCircle className="h-5 w-5 text-emerald-500" />;
+        return <CheckCircle className="h-5 w-5 text-amber-600" />;
       case 'warning':
         return <AlertTriangle className="h-5 w-5 text-orange-500" />;
       case 'over':
@@ -226,7 +226,7 @@ const Kategori: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
       </div>
     );
   }
@@ -251,7 +251,7 @@ const Kategori: React.FC = () => {
             </Button>
             <Button
               onClick={() => setShowForm(!showForm)}
-              className="bg-emerald-500 hover:bg-emerald-600"
+              className="bg-amber-600 hover:bg-amber-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Tambah Kategori
@@ -350,7 +350,7 @@ const Kategori: React.FC = () => {
             </div>
 
             <div className="flex gap-2 mt-4">
-              <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600">
+              <Button type="submit" className="bg-amber-600 hover:bg-amber-700">
                 {editingCategory ? 'Perbarui' : 'Simpan'} Kategori
               </Button>
               <Button type="button" variant="outline" onClick={resetForm}>
@@ -395,7 +395,7 @@ const Kategori: React.FC = () => {
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         category.type === 'income' 
-                          ? 'bg-emerald-100 text-emerald-800' 
+                          ? 'bg-amber-100 text-amber-800' 
                           : 'bg-red-100 text-red-800'
                       }`}>
                         {category.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
@@ -412,7 +412,7 @@ const Kategori: React.FC = () => {
                         <div className="flex items-center space-x-2">
                           {getStatusIcon(category.status)}
                           <span className={`text-sm font-medium ${
-                            category.status === 'safe' ? 'text-emerald-600' :
+                            category.status === 'safe' ? 'text-amber-700' :
                             category.status === 'warning' ? 'text-orange-600' : 'text-red-600'
                           }`}>
                             {getStatusText(category.status)} ({category.percentage.toFixed(0)}%)
