@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Download, X } from 'lucide-react';
 
@@ -79,8 +78,8 @@ const PWAInstallPrompt: React.FC = () => {
     <div className="fixed bottom-4 left-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 md:left-auto md:right-4 md:max-w-sm">
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-3">
-          <div className="bg-emerald-100 p-2 rounded-full">
-            <Download className="h-5 w-5 text-emerald-600" />
+          <div className="bg-amber-100 p-2 rounded-full">
+            <Download className="h-5 w-5 text-amber-700" />
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">Install Gaji-ku</h3>
@@ -99,7 +98,7 @@ const PWAInstallPrompt: React.FC = () => {
       <div className="flex space-x-2 mt-4">
         <button
           onClick={handleInstallClick}
-          className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+          className="flex-1 bg-neutral-900 text-white px-4 py-2 rounded-lg hover:bg-neutral-800 transition-colors"
         >
           Pasang Sekarang
         </button>
