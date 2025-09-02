@@ -81,26 +81,52 @@ const Pengaturan: React.FC = () => {
       try {
         const jsonData = JSON.parse(e.target?.result as string);
         
-        // Validate data structure
-        if (!jsonData.transactions || !jsonData.categories) {
+        // Validate and normalize data structure
+        const raw = (jsonData && typeof jsonData === 'object')
+          ? (jsonData.transactions && jsonData.categories ? jsonData
+            : (jsonData.data && jsonData.data.transactions && jsonData.data.categories ? jsonData.data : null))
+          : null;
+
+        if (!raw) {
           throw new Error('Invalid backup file format');
         }
 
-        // Clear existing data
+        const normalizeTransactions = Array.isArray(raw.transactions) ? raw.transactions.map((t: any) => ({
+          type: t.type,
+          amount: typeof t.amount === 'string' ? parseFloat(t.amount) : t.amount,
+          description: t.description || '',
+          category: t.category || (t.type === 'transfer_to_target' ? 'Transfer ke Target' : ''),
+          date: t.date,
+          targetId: t.targetId,
+          createdAt: t.createdAt ? new Date(t.createdAt) : new Date()
+        })) : [];
+
+        const normalizeCategories = Array.isArray(raw.categories) ? raw.categories.map((c: any) => ({
+          name: c.name,
+          type: c.type,
+          budgetLimit: typeof c.budgetLimit === 'string' ? parseFloat(c.budgetLimit) : c.budgetLimit,
+          color: c.color,
+          bulan: c.bulan,
+          tahun: c.tahun,
+          createdAt: c.createdAt ? new Date(c.createdAt) : new Date()
+        })) : [];
+
+        const normalizeSettings = Array.isArray(raw.settings) ? raw.settings : [];
+
+        // Clear existing data and import
         await db.transaction('rw', db.transactions, db.categories, db.settings, async () => {
           await db.transactions.clear();
           await db.categories.clear();
           await db.settings.clear();
 
-          // Import data
-          if (jsonData.transactions.length > 0) {
-            await db.transactions.bulkAdd(jsonData.transactions);
+          if (normalizeTransactions.length > 0) {
+            await db.transactions.bulkAdd(normalizeTransactions);
           }
-          if (jsonData.categories.length > 0) {
-            await db.categories.bulkAdd(jsonData.categories);
+          if (normalizeCategories.length > 0) {
+            await db.categories.bulkAdd(normalizeCategories);
           }
-          if (jsonData.settings?.length > 0) {
-            await db.settings.bulkAdd(jsonData.settings);
+          if (normalizeSettings.length > 0) {
+            await db.settings.bulkAdd(normalizeSettings);
           }
         });
 
