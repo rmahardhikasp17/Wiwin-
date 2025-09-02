@@ -241,15 +241,6 @@ const Kategori: React.FC = () => {
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
             <Button
-              onClick={handleCopyLastMonthCategories}
-              variant="outline"
-              size="sm"
-              className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs"
-            >
-              <Copy className="h-3 w-3 mr-1" />
-              Salin Bulan Lalu
-            </Button>
-            <Button
               onClick={() => setShowForm(!showForm)}
               className="bg-amber-600 hover:bg-amber-700"
             >
