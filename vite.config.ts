@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -35,11 +34,11 @@ export default defineConfig(({ mode }) => ({
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'Gaji-ku',
-        short_name: 'Gaji-ku',
+        name: 'Money Tracker',
+        short_name: 'Money Tracker',
         description: 'Aplikasi manajemen keuangan pribadi',
-        theme_color: '#16a34a',
-        background_color: '#ffffff',
+        theme_color: '#0b0b0b',
+        background_color: '#0b0b0b',
         display: 'standalone',
         scope: '/',
         start_url: '.',
