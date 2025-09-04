@@ -81,7 +81,7 @@ const Transaksi: React.FC = () => {
                     <SelectItem value="all">Semua</SelectItem>
                     <SelectItem value="income">Pemasukan</SelectItem>
                     <SelectItem value="expense">Pengeluaran</SelectItem>
-                    <SelectItem value="transfer_to_target">Transfer Target</SelectItem>
+                    <SelectItem value="transfer_to_target">Tabungan</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
