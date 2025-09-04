@@ -9,7 +9,7 @@ import { Download, Upload, Trash2, Sun, Moon, Monitor, User, Save, Image as Imag
 import { db } from '@/services/database';
 import { useDateFilterHelper } from '@/hooks/useDateFilterHelper';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { extractThemeFromImage, applyThemeColors, saveTheme, getSavedThemeImage, clearTheme, removeThemeColors } from '@/utils/theme';
+import { getBackgroundImage, saveBackgroundImage, clearBackgroundImage } from '@/utils/background';
 
 const Pengaturan: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
