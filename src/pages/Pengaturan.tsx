@@ -39,11 +39,9 @@ const Pengaturan: React.FC = () => {
     setIsProcessingImage(true);
     try {
       const dataUrl = await fileToDataURL(file);
-      const theme = await extractThemeFromImage(dataUrl);
-      applyThemeColors(theme);
-      await saveTheme(theme, dataUrl);
-      setThemeImage(dataUrl);
-      toast({ title: 'Tema diperbarui', description: 'Warna aplikasi disesuaikan dari gambar Anda.' });
+      await saveBackgroundImage(dataUrl);
+      setBgImage(dataUrl);
+      toast({ title: 'Background diperbarui', description: 'Gambar latar berhasil diterapkan.' });
     } catch (err) {
       console.error(err);
       toast({ title: 'Gagal memproses gambar', description: 'Pastikan file gambar valid.', variant: 'destructive' });
