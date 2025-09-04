@@ -41,6 +41,7 @@ const Pengaturan: React.FC = () => {
       const dataUrl = await fileToDataURL(file);
       await saveBackgroundImage(dataUrl);
       setBgImage(dataUrl);
+      window.dispatchEvent(new CustomEvent('bg-image-updated', { detail: dataUrl }));
       toast({ title: 'Background diperbarui', description: 'Gambar latar berhasil diterapkan.' });
     } catch (err) {
       console.error(err);
@@ -54,6 +55,7 @@ const Pengaturan: React.FC = () => {
     try {
       await clearBackgroundImage();
       setBgImage(undefined);
+      window.dispatchEvent(new CustomEvent('bg-image-updated', { detail: undefined }));
       toast({ title: 'Background direset', description: 'Kembali ke bawaan.' });
     } catch (e) {}
   };
