@@ -1,4 +1,3 @@
-
 import Dexie, { Table } from 'dexie';
 
 export interface Transaction {
@@ -79,6 +78,56 @@ export class DompetDatabase extends Dexie {
       targets: '++id, nama, nominalTarget, bulanMulai, tahunMulai, bulanSelesai, tahunSelesai, createdAt',
       settings: '++id, key, value'
     });
+
+    // Version 4 - Simplify categories to fixed income set and remove expense categories
+    this.version(4).stores({
+      transactions: '++id, type, amount, description, category, date, targetId, createdAt',
+      categories: '++id, name, type, budgetLimit, color, bulan, tahun, createdAt, [bulan+tahun]',
+      targets: '++id, nama, nominalTarget, bulanMulai, tahunMulai, bulanSelesai, tahunSelesai, createdAt',
+      settings: '++id, key, value'
+    }).upgrade(async trans => {
+      const allowedIncome = ['W2-phone', 'Amel cake', 'Bagaskent gaming center'];
+      const defaultColors: Record<string, string> = {
+        'W2-phone': '#10B981',
+        'Amel cake': '#059669',
+        'Bagaskent gaming center': '#14B8A6'
+      };
+      const catTable = trans.table('categories');
+      const allCats = await catTable.toArray();
+      const periods = new Set<string>();
+      for (const cat of allCats) {
+        if (typeof cat.bulan === 'number' && typeof cat.tahun === 'number') {
+          periods.add(`${cat.bulan}-${cat.tahun}`);
+        }
+        if (cat.type === 'expense' || (cat.type === 'income' && !allowedIncome.includes(cat.name))) {
+          if (cat.id != null) {
+            await catTable.delete(cat.id);
+          }
+        }
+      }
+      if (periods.size === 0) {
+        const now = new Date();
+        periods.add(`${now.getMonth() + 1}-${now.getFullYear()}`);
+      }
+      for (const key of periods) {
+        const [bulanStr, tahunStr] = key.split('-');
+        const bulan = parseInt(bulanStr, 10);
+        const tahun = parseInt(tahunStr, 10);
+        for (const name of allowedIncome) {
+          const exists = await catTable.where(['bulan','tahun']).equals([bulan, tahun]).filter(c => c.type === 'income' && c.name === name).count();
+          if (exists === 0) {
+            await catTable.add({
+              name,
+              type: 'income',
+              color: defaultColors[name] || '#10B981',
+              bulan,
+              tahun,
+              createdAt: new Date()
+            } as any);
+          }
+        }
+      }
+    });
   }
 }
 
@@ -98,12 +147,9 @@ export const initializeDatabase = async (bulan?: number, tahun?: number) => {
     
   if (categoriesCount === 0) {
     await db.categories.bulkAdd([
-      { name: 'Gaji', type: 'income', color: '#10B981', bulan: targetMonth, tahun: targetYear, createdAt: new Date() },
-      { name: 'Freelance', type: 'income', color: '#059669', bulan: targetMonth, tahun: targetYear, createdAt: new Date() },
-      { name: 'Makanan', type: 'expense', color: '#EF4444', budgetLimit: 500000, bulan: targetMonth, tahun: targetYear, createdAt: new Date() },
-      { name: 'Transport', type: 'expense', color: '#F97316', budgetLimit: 200000, bulan: targetMonth, tahun: targetYear, createdAt: new Date() },
-      { name: 'Hiburan', type: 'expense', color: '#8B5CF6', budgetLimit: 300000, bulan: targetMonth, tahun: targetYear, createdAt: new Date() },
-      { name: 'Belanja', type: 'expense', color: '#EC4899', budgetLimit: 400000, bulan: targetMonth, tahun: targetYear, createdAt: new Date() }
+      { name: 'W2-phone', type: 'income', color: '#10B981', bulan: targetMonth, tahun: targetYear, createdAt: new Date() },
+      { name: 'Amel cake', type: 'income', color: '#059669', bulan: targetMonth, tahun: targetYear, createdAt: new Date() },
+      { name: 'Bagaskent gaming center', type: 'income', color: '#14B8A6', bulan: targetMonth, tahun: targetYear, createdAt: new Date() }
     ]);
   }
 };
