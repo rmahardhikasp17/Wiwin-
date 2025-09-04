@@ -149,6 +149,8 @@ const ResponsiveDashboard: React.FC = () => {
     );
   }
 
+  const totalSavings = allTransactions.filter(t => t.type === 'transfer_to_target').reduce((sum, t) => sum + t.amount, 0);
+
   return (
     <div className="space-y-4 sm:space-y-6 pb-20 lg:pb-0">
       {/* Welcome Message */}
