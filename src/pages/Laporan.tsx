@@ -61,6 +61,10 @@ const Laporan: React.FC = () => {
 
   const totalBalance = totalIncome - totalExpense;
 
+  const totalSavings = transactions
+    .filter(t => t.type === 'transfer_to_target')
+    .reduce((sum, t) => sum + t.amount, 0);
+
   useEffect(() => {
     loadYearlyData();
     calculateCategoryUsage();
@@ -206,6 +210,16 @@ const Laporan: React.FC = () => {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Tabungan</CardTitle>
+            <Target className="h-4 w-4 text-indigo-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-indigo-600">{formatCurrency(totalSavings)}</div>
+          </CardContent>
+        </Card>
+
         {totalBudget > 0 && (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -288,7 +302,7 @@ const Laporan: React.FC = () => {
         </Card>
       </div>
 
-      {getActiveTargetProgress().length > 0 && (
+      {false && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
