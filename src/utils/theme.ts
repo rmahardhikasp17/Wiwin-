@@ -32,6 +32,12 @@ export function applyThemeColors(colors: ThemeColors) {
   if (colors.sidebarPrimaryForeground) root.style.setProperty('--sidebar-primary-foreground', colors.sidebarPrimaryForeground);
 }
 
+export function removeThemeColors() {
+  const root = document.documentElement;
+  const keys = ['--primary','--primary-foreground','--accent','--ring','--sidebar-primary','--sidebar-primary-foreground'];
+  for (const k of keys) root.style.removeProperty(k);
+}
+
 export async function saveTheme(colors: ThemeColors, imageDataUrl?: string) {
   // Persist to settings
   const payloads: { key: string; value: any }[] = [
