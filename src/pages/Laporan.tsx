@@ -372,7 +372,7 @@ const Laporan: React.FC = () => {
             Semua transaksi untuk {getMonthName(bulan)} {tahun} ({transactions.length} transaksi)
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <TransactionTable transactions={transactions} />
         </CardContent>
       </Card>
