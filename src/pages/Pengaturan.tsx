@@ -22,7 +22,7 @@ const Pengaturan: React.FC = () => {
     userEmail: ''
   });
   const { bulan, tahun, getMonthName } = useDateFilterHelper();
-  const [themeImage, setThemeImage] = useState<string | undefined>(undefined);
+  const [bgImage, setBgImage] = useState<string | undefined>(undefined);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
 
