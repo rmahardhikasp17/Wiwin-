@@ -106,16 +106,16 @@ const TransactionList: React.FC<TransactionListProps> = ({
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[60vh] sm:max-h-[65vh] overflow-y-auto pr-1">
             {transactions.map((transaction) => (
               <div
                 key={transaction.id}
                 className="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4 min-w-0">
                   <div className={`p-2 rounded-lg ${
-                    transaction.type === 'income' 
-                      ? 'bg-amber-100 text-amber-700' 
+                    transaction.type === 'income'
+                      ? 'bg-amber-100 text-amber-700'
                       : transaction.type === 'transfer_to_target'
                       ? 'bg-blue-100 text-blue-600'
                       : 'bg-red-100 text-red-600'
@@ -128,32 +128,34 @@ const TransactionList: React.FC<TransactionListProps> = ({
                       <TrendingDown className="h-5 w-5" />
                     )}
                   </div>
-                  
-                  <div>
-                    <h3 className="font-medium text-gray-900">{transaction.description}</h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+
+                  <div className="min-w-0">
+                    <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate max-w-[52vw] sm:max-w-none">
+                      {transaction.description}
+                    </h3>
+                    <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-xs sm:text-sm text-gray-500">
                       {transaction.type === 'transfer_to_target' ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          🎯 Target: {getTargetName(transaction.targetId)}
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-blue-100 text-blue-800">
+                          🏦 Tabungan
                         </span>
                       ) : (
-                        <span>{transaction.category}</span>
+                        <span className="truncate max-w-[40vw]">{transaction.category}</span>
                       )}
-                      <span>•</span>
+                      <span className="hidden sm:inline">•</span>
                       <span>{formatDate(transaction.date)}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3">
-                  <span className={`font-semibold ${
-                    transaction.type === 'income' 
-                      ? 'text-amber-700' 
+                <div className="flex items-center space-x-3 pl-2 flex-shrink-0">
+                  <span className={`font-semibold text-sm sm:text-base ${
+                    transaction.type === 'income'
+                      ? 'text-amber-700'
                       : transaction.type === 'transfer_to_target'
                       ? 'text-blue-600'
                       : 'text-red-600'
                   }`}>
-                    {transaction.type === 'income' ? '+' : transaction.type === 'transfer_to_target' ? '🎯' : '-'}{formatCurrency(transaction.amount)}
+                    {transaction.type === 'income' ? '+' : transaction.type === 'transfer_to_target' ? '🏦' : '-'}{formatCurrency(transaction.amount)}
                   </span>
 
                   <DropdownMenu>
@@ -172,7 +174,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => handleDelete(transaction.id!)}
                         className="text-red-600"
                       >
