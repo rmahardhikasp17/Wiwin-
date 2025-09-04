@@ -33,7 +33,7 @@ const Pengaturan: React.FC = () => {
     })();
   }, []);
 
-  const handleThemeImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setIsProcessingImage(true);
