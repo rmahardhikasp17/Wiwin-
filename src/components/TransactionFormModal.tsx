@@ -73,8 +73,8 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
     
     // Validation
     if (formData.type === 'transfer_to_target') {
-      if (!formData.amount || !formData.description || !formData.targetId) {
-        toast.error('Semua field harus diisi untuk setor ke target');
+      if (!formData.amount) {
+        toast.error('Nominal harus diisi');
         return;
       }
     } else if (formData.type === 'income') {
