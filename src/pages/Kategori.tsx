@@ -40,9 +40,9 @@ const Kategori: React.FC = () => {
             <ul className="space-y-2">
               {incomeExisting.map(item => (
                 <li key={item.name} className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-md px-3 py-2">
-                  <span className="font-medium text-amber-800">{item.name}</span>
+                  <span className="font-medium text-amber-800 truncate max-w-[70%]">{item.name}</span>
                   {item.exists && (
-                    <span className="inline-flex items-center text-amber-700 text-xs">
+                    <span className="inline-flex items-center text-amber-700 text-xs whitespace-nowrap">
                       <CheckCircle className="h-4 w-4 mr-1" />
                       aktif
                     </span>
