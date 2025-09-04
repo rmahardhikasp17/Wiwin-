@@ -128,7 +128,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="px-3 sm:px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <h1 className="text-base sm:text-lg font-bold text-white">MONEY TRACKER</h1>
+              <h1 className="text-base sm:text-lg font-bold text-white">W2 CORP</h1>
             </div>
 
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -140,7 +140,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <SheetContent side="left" className="w-72 p-0">
                 <SheetHeader className="p-6 bg-gradient-to-r from-neutral-900 to-amber-600 text-white">
                   <SheetTitle className="text-white">
-                    <span>MONEY TRACKER</span>
+                    <span>W2 CORP</span>
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="p-4 space-y-2">
@@ -168,7 +168,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold text-white">MONEY TRACKER</h1>
+              <h1 className="text-2xl font-bold text-white">W2 CORP</h1>
             </div>
 
             {/* Desktop Filter */}
