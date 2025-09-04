@@ -250,7 +250,7 @@ const ResponsiveDashboard: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-              <span className="truncate">Target Tabungan Aktif</span>
+              <span className="truncate">Tabungan</span>
             </h2>
             <div className="space-y-3 sm:space-y-4">
               {getActiveTargetProgress().slice(0, 3).map((tp) => (
