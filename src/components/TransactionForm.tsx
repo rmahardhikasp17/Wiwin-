@@ -15,13 +15,22 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onTransac
     date: new Date().toISOString().split('T')[0]
   });
 
-  const filteredCategories = categories.filter(cat => cat.type === formData.type);
+  const allowedIncome = ['W2-phone', 'Amel cake', 'Bagaskent gaming center'];
+  const filteredCategories = formData.type === 'income'
+    ? categories.filter(cat => cat.type === 'income' && allowedIncome.includes(cat.name))
+    : [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.amount || !formData.description || !formData.category) {
-      return;
+    if (formData.type === 'income') {
+      if (!formData.amount || !formData.description || !formData.category) {
+        return;
+      }
+    } else {
+      if (!formData.amount || !formData.description) {
+        return;
+      }
     }
 
     try {
@@ -29,7 +38,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onTransac
         type: formData.type,
         amount: parseFloat(formData.amount),
         description: formData.description,
-        category: formData.category,
+        category: formData.type === 'income' ? formData.category : 'Pengeluaran',
         date: formData.date,
         createdAt: new Date()
       });
@@ -101,24 +110,26 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onTransac
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Kategori
-        </label>
-        <select
-          value={formData.category}
-          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
-          required
-        >
-          <option value="">Pilih kategori</option>
-          {filteredCategories.map((category) => (
-            <option key={category.id} value={category.name}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {formData.type === 'income' && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Kategori
+          </label>
+          <select
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
+            required
+          >
+            <option value="">Pilih kategori pemasukan</option>
+            {filteredCategories.map((category) => (
+              <option key={category.id} value={category.name}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">

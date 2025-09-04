@@ -36,14 +36,11 @@ const Pengaturan: React.FC = () => {
     if (isSeeding) return;
     setIsSeeding(true);
     try {
-      // 1) Ensure baseline categories for current period
+      // 1) Ensure baseline categories for current period (fixed income only)
       const desiredCategories = [
-        { name: 'Gaji', type: 'income' as const, color: '#10B981' },
-        { name: 'Freelance', type: 'income' as const, color: '#059669' },
-        { name: 'Makanan', type: 'expense' as const, color: '#EF4444', budgetLimit: 500000 },
-        { name: 'Transport', type: 'expense' as const, color: '#F97316', budgetLimit: 200000 },
-        { name: 'Hiburan', type: 'expense' as const, color: '#8B5CF6', budgetLimit: 300000 },
-        { name: 'Belanja', type: 'expense' as const, color: '#EC4899', budgetLimit: 400000 }
+        { name: 'W2-phone', type: 'income' as const, color: '#10B981' },
+        { name: 'Amel cake', type: 'income' as const, color: '#059669' },
+        { name: 'Bagaskent gaming center', type: 'income' as const, color: '#14B8A6' }
       ];
 
       const existingThisPeriod = await db.categories
@@ -64,73 +61,40 @@ const Pengaturan: React.FC = () => {
         })));
       }
 
-      // 2) Ensure some targets exist
-      const existingTargets = await db.targets.toArray();
-      let targetIds = existingTargets.map(t => t.id!).filter(Boolean);
-      if (targetIds.length === 0) {
-        const now = new Date();
-        const addedIds = await db.targets.bulkAdd([
-          {
-            nama: 'Liburan Bali',
-            nominalTarget: 5000000,
-            bulanMulai: now.getMonth() + 1,
-            tahunMulai: now.getFullYear(),
-            bulanSelesai: ((now.getMonth() + 1 + 6 - 1) % 12) + 1,
-            tahunSelesai: now.getFullYear() + (now.getMonth() + 1 + 6 > 12 ? 1 : 0),
-            createdAt: new Date()
-          },
-          {
-            nama: 'Dana Darurat',
-            nominalTarget: 10000000,
-            bulanMulai: now.getMonth() + 1,
-            tahunMulai: now.getFullYear(),
-            bulanSelesai: ((now.getMonth() + 1 + 12 - 1) % 12) + 1,
-            tahunSelesai: now.getFullYear() + (now.getMonth() + 1 + 12 > 12 ? 1 : 0),
-            createdAt: new Date()
-          }
-        ], { allKeys: true } as any);
-        // Dexie returns keys if allKeys supported; fallback get again
-        const refreshed = await db.targets.toArray();
-        targetIds = refreshed.map(t => t.id!).filter(Boolean);
-      }
-
-      const anyTargetId = targetIds[0];
-
-      // 3) Append transactions in current bulan/tahun
+      // 2) Append transactions in current bulan/tahun
       const pad2 = (n: number) => (n < 10 ? `0${n}` : `${n}`);
       const dateStr = (d: number) => `${tahun}-${pad2(bulan)}-${pad2(d)}`;
 
       const tx = [
-        { type: 'income', amount: 5000000, description: 'Gaji Bulanan', category: 'Gaji', date: dateStr(1) },
-        { type: 'income', amount: 1500000, description: 'Proyek Website', category: 'Freelance', date: dateStr(3) },
-        { type: 'expense', amount: 45000, description: 'Sarapan', category: 'Makanan', date: dateStr(2) },
-        { type: 'expense', amount: 60000, description: 'Transport Online', category: 'Transport', date: dateStr(4) },
-        { type: 'expense', amount: 120000, description: 'Belanja Harian', category: 'Belanja', date: dateStr(5) },
-        { type: 'expense', amount: 80000, description: 'Nonton', category: 'Hiburan', date: dateStr(6) },
-        { type: 'expense', amount: 70000, description: 'Makan Malam', category: 'Makanan', date: dateStr(8) },
-        { type: 'expense', amount: 150000, description: 'Isi Bensin', category: 'Transport', date: dateStr(10) },
-        { type: 'income', amount: 1000000, description: 'Project Design', category: 'Freelance', date: dateStr(12) },
-        { type: 'expense', amount: 250000, description: 'Belanja Pakaian', category: 'Belanja', date: dateStr(15) },
-        { type: 'income', amount: 500000, description: 'Bonus Kecil', category: 'Gaji', date: dateStr(16) },
-        { type: 'expense', amount: 95000, description: 'Makan Siang', category: 'Makanan', date: dateStr(17) },
-        { type: 'expense', amount: 40000, description: 'Parkir & Tol', category: 'Transport', date: dateStr(18) },
-        { type: 'transfer_to_target', amount: 300000, description: 'Setor ke Target', category: 'Transfer ke Target', date: dateStr(19), targetId: anyTargetId },
-        { type: 'expense', amount: 150000, description: 'Nongkrong', category: 'Hiburan', date: dateStr(20) }
+        { type: 'income', amount: 5000000, description: 'Pendapatan W2-phone', category: 'W2-phone', date: dateStr(1) },
+        { type: 'income', amount: 1200000, description: 'Penjualan Amel cake', category: 'Amel cake', date: dateStr(3) },
+        { type: 'expense', amount: 45000, description: 'Sarapan', category: 'Pengeluaran', date: dateStr(2) },
+        { type: 'expense', amount: 60000, description: 'Transport Online', category: 'Pengeluaran', date: dateStr(4) },
+        { type: 'expense', amount: 120000, description: 'Belanja Harian', category: 'Pengeluaran', date: dateStr(5) },
+        { type: 'expense', amount: 80000, description: 'Nonton', category: 'Pengeluaran', date: dateStr(6) },
+        { type: 'expense', amount: 70000, description: 'Makan Malam', category: 'Pengeluaran', date: dateStr(8) },
+        { type: 'expense', amount: 150000, description: 'Isi Bensin', category: 'Pengeluaran', date: dateStr(10) },
+        { type: 'income', amount: 900000, description: 'Sewa PC BGGC', category: 'Bagaskent gaming center', date: dateStr(12) },
+        { type: 'expense', amount: 250000, description: 'Belanja Pakaian', category: 'Pengeluaran', date: dateStr(15) },
+        { type: 'income', amount: 400000, description: 'Pendapatan Amel cake', category: 'Amel cake', date: dateStr(16) },
+        { type: 'expense', amount: 95000, description: 'Makan Siang', category: 'Pengeluaran', date: dateStr(17) },
+        { type: 'expense', amount: 40000, description: 'Parkir & Tol', category: 'Pengeluaran', date: dateStr(18) },
+        { type: 'transfer_to_target', amount: 300000, description: '', category: 'Tabungan', date: dateStr(19) },
+        { type: 'expense', amount: 150000, description: 'Nongkrong', category: 'Pengeluaran', date: dateStr(20) }
       ] as const;
 
       await db.transactions.bulkAdd(tx.map(t => ({
         type: t.type as any,
         amount: t.amount,
-        description: t.description,
-        category: t.type === 'transfer_to_target' ? 'Transfer ke Target' : t.category,
+        description: t.type === 'transfer_to_target' ? (t.description || 'Tabungan') : t.description,
+        category: t.type === 'transfer_to_target' ? 'Tabungan' : t.category,
         date: t.date,
-        targetId: (t as any).targetId,
         createdAt: new Date()
       })));
 
       toast({
         title: 'Data Demo Ditambahkan',
-        description: `Kategori, target, dan transaksi contoh ditambahkan untuk ${getMonthName(bulan)} ${tahun}.`,
+        description: `Kategori pemasukan tetap dan transaksi demo ditambahkan untuk ${getMonthName(bulan)} ${tahun}.`,
       });
     } catch (err) {
       console.error('Seed demo error:', err);
@@ -226,10 +190,9 @@ const Pengaturan: React.FC = () => {
         const normalizeTransactions = txArray.map((t: any) => ({
           type: t.type,
           amount: typeof t.amount === 'string' ? parseFloat(t.amount) : Number(t.amount),
-          description: t.description || '',
-          category: t.category || (t.type === 'transfer_to_target' ? 'Transfer ke Target' : ''),
+          description: t.type === 'transfer_to_target' ? (t.description || 'Tabungan') : (t.description || ''),
+          category: t.category || (t.type === 'transfer_to_target' ? 'Tabungan' : ''),
           date: t.date,
-          targetId: t.targetId ?? (t.target_id ?? undefined),
           createdAt: t.createdAt ? new Date(t.createdAt) : new Date()
         }));
 
@@ -708,7 +671,7 @@ const Pengaturan: React.FC = () => {
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <div>
               <h3 className="font-medium">Isi Data Demo</h3>
-              <p className="text-sm text-gray-600">Tambahkan kategori, target, dan 15 transaksi contoh (append)</p>
+              <p className="text-sm text-gray-600">Tambahkan 3 kategori pemasukan tetap dan 15 transaksi demo (append)</p>
             </div>
             <Button onClick={handleSeedDemoAppend} disabled={isSeeding}>
               {isSeeding ? 'Menambahkan...' : 'Isi Data Demo'}
@@ -771,7 +734,7 @@ const Pengaturan: React.FC = () => {
                 <li>Gunakan menu <strong>Transaksi</strong> untuk menambah pemasukan dan pengeluaran</li>
                 <li>Atur <strong>Kategori</strong> untuk mengorganisir jenis transaksi</li>
                 <li>Pantau <strong>Laporan</strong> untuk analisis keuangan bulanan</li>
-                <li>Buat <strong>Target</strong> tabungan untuk mencapai tujuan keuangan</li>
+                <li>Pantau <strong>Tabungan</strong> untuk melihat setoran tabungan</li>
                 <li>Gunakan filter tanggal untuk melihat data periode tertentu</li>
               </ul>
             </div>

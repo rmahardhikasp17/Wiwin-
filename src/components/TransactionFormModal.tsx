@@ -58,11 +58,10 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
   }, [isOpen, editingTransaction]);
 
   // Memoized filtered categories to prevent re-renders and duplicates
+  const allowedIncome = ['W2-phone', 'Amel cake', 'Bagaskent gaming center'];
   const filteredCategories = useMemo(() => {
-    if (!formData.type || formData.type === 'transfer_to_target') return [];
-    
-    const filtered = categories.filter(cat => cat.type === formData.type);
-    // Remove duplicates by creating a Map with unique names
+    if (formData.type !== 'income') return [];
+    const filtered = categories.filter(cat => cat.type === 'income' && allowedIncome.includes(cat.name));
     const uniqueCategories = Array.from(
       new Map(filtered.map(cat => [cat.name, cat])).values()
     );
@@ -74,12 +73,17 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
     
     // Validation
     if (formData.type === 'transfer_to_target') {
-      if (!formData.amount || !formData.description || !formData.targetId) {
-        toast.error('Semua field harus diisi untuk setor ke target');
+      if (!formData.amount) {
+        toast.error('Nominal harus diisi');
+        return;
+      }
+    } else if (formData.type === 'income') {
+      if (!formData.amount || !formData.description || !formData.category) {
+        toast.error('Semua field harus diisi');
         return;
       }
     } else {
-      if (!formData.amount || !formData.description || !formData.category) {
+      if (!formData.amount || !formData.description) {
         toast.error('Semua field harus diisi');
         return;
       }
@@ -103,10 +107,15 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
 
       // Add category or targetId based on transaction type
       if (formData.type === 'transfer_to_target') {
-        transactionData.targetId = parseInt(formData.targetId);
-        transactionData.category = 'Transfer ke Target';
-      } else {
+        transactionData.category = 'Tabungan';
+      } else if (formData.type === 'income') {
         transactionData.category = formData.category;
+      } else {
+        transactionData.category = 'Pengeluaran';
+      }
+
+      if (formData.type === 'transfer_to_target' && !transactionData.description) {
+        transactionData.description = 'Tabungan';
       }
 
       if (editingTransaction) {
@@ -138,9 +147,12 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
 
   const isFormValid = () => {
     if (formData.type === 'transfer_to_target') {
-      return formData.amount && formData.description && formData.targetId;
+      return Boolean(formData.amount);
     }
-    return formData.amount && formData.description && formData.category && formData.type;
+    if (formData.type === 'income') {
+      return Boolean(formData.amount && formData.description && formData.category);
+    }
+    return Boolean(formData.amount && formData.description);
   };
 
   // Prevent body scroll when modal is open
@@ -244,61 +256,21 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                     disabled={isLoading}
                   />
                   <span className="text-blue-600 font-medium text-sm sm:text-base break-words whitespace-normal">
-                    🎯 Setor ke Target
+                    🏦 Tabungan
                   </span>
                 </label>
               </div>
             </div>
 
-            {/* 2. Category/Target Selection - Only shows after type is selected */}
+            {/* 2. Category Selection or Info */}
             {formData.type && (
               formData.type === 'transfer_to_target' ? (
-                <div>
-                  <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                    Pilih Target Tabungan
-                  </label>
-                  <div className="space-y-3">
-                    <select
-                      value={formData.targetId}
-                      onChange={(e) => setFormData({ ...formData, targetId: e.target.value })}
-                      className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                      required
-                      disabled={isLoading}
-                    >
-                      <option value="">Pilih target tabungan</option>
-                      {activeTargets.map((target, index) => (
-                        <option key={`target-${target.id}-${index}`} value={target.id}>
-                          {target.nama} (Target: {formatInputNumber(target.nominalTarget.toString())})
-                        </option>
-                      ))}
-                    </select>
-                    
-                    {activeTargets.length > 0 && (
-                      <div className="bg-blue-50 rounded-lg p-3">
-                        <div className="text-xs sm:text-sm font-medium text-blue-600 mb-2">
-                          Target Aktif:
-                        </div>
-                        <div className="space-y-1">
-                          {activeTargets.map((target, index) => (
-                            <div key={`active-target-${target.id}-${index}`} className="text-xs sm:text-sm text-blue-700">
-                              🎯 <span className="break-words whitespace-normal">{target.nama}</span> - 
-                              Target: {formatInputNumber(target.nominalTarget.toString())}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {activeTargets.length === 0 && !targetsLoading && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                        <div className="text-xs sm:text-sm text-yellow-700 break-words whitespace-normal">
-                          Tidak ada target aktif untuk periode ini. Silakan buat target di halaman Target.
-                        </div>
-                      </div>
-                    )}
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                  <div className="text-xs sm:text-sm text-blue-700">
+                    Transaksi tabungan tidak memerlukan kategori atau deskripsi. Cukup isi nominal dan tanggal.
                   </div>
                 </div>
-              ) : (
+              ) : formData.type === 'income' ? (
                 <div>
                   <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                     Kategori
@@ -311,30 +283,24 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                       required
                       disabled={isLoading}
                     >
-                      <option value="">
-                        {formData.type === 'income' ? 'Pilih kategori pemasukan' : 'Pilih kategori pengeluaran'}
-                      </option>
+                      <option value="">Pilih kategori pemasukan</option>
                       {filteredCategories.map((category, index) => (
                         <option key={`category-${category.id}-${index}`} value={category.name}>
                           {category.name}
                         </option>
                       ))}
                     </select>
-                    
+
                     {filteredCategories.length > 0 && (
                       <div className="bg-gray-50 rounded-lg p-3">
                         <div className="text-xs sm:text-sm font-medium text-gray-600 mb-2">
-                          {formData.type === 'income' ? 'Kategori Pemasukan:' : 'Kategori Pengeluaran:'}
+                          Kategori Pemasukan:
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {filteredCategories.map((category, index) => (
                             <span
                               key={`category-badge-${category.id}-${index}`}
-                              className={`inline-flex items-center px-2 py-1 rounded-full font-medium break-words ${
-                                formData.type === 'income' 
-                                  ? 'bg-amber-100 text-amber-800 text-xs leading-tight' 
-                                  : 'bg-red-100 text-red-800 text-xs leading-tight'
-                              }`}
+                              className="inline-flex items-center px-2 py-1 rounded-full font-medium break-words bg-amber-100 text-amber-800 text-xs leading-tight"
                               title={category.name}
                             >
                               <span className="break-words max-w-20 leading-tight">
@@ -347,24 +313,32 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                     )}
                   </div>
                 </div>
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="text-xs sm:text-sm font-medium text-gray-600">
+                    Pengeluaran tidak memerlukan kategori. Isi deskripsi dan nominal.
+                  </div>
+                </div>
               )
             )}
 
             {/* 3. Description */}
-            <div>
-              <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                Nama/Deskripsi
-              </label>
-              <input
-                type="text"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
-                placeholder="Contoh: Makan siang, Gaji bulanan, dll."
-                required
-                disabled={isLoading}
-              />
-            </div>
+            {formData.type !== 'transfer_to_target' && (
+              <div>
+                <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
+                  Nama/Deskripsi
+                </label>
+                <input
+                  type="text"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
+                  placeholder="Contoh: Makan siang, Gaji bulanan, dll."
+                  required={formData.type !== 'transfer_to_target'}
+                  disabled={isLoading}
+                />
+              </div>
+            )}
 
             {/* 4. Amount */}
             <div>

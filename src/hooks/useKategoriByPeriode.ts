@@ -145,12 +145,9 @@ export const useKategoriByPeriode = () => {
     if (currentCategories === 0) {
       // Copy default categories to current period
       const defaultCategories: Omit<Category, 'id'>[] = [
-        { name: 'Gaji', type: 'income', color: '#10B981', bulan, tahun, createdAt: new Date() },
-        { name: 'Freelance', type: 'income', color: '#059669', bulan, tahun, createdAt: new Date() },
-        { name: 'Makanan', type: 'expense', color: '#EF4444', budgetLimit: 500000, bulan, tahun, createdAt: new Date() },
-        { name: 'Transport', type: 'expense', color: '#F97316', budgetLimit: 200000, bulan, tahun, createdAt: new Date() },
-        { name: 'Hiburan', type: 'expense', color: '#8B5CF6', budgetLimit: 300000, bulan, tahun, createdAt: new Date() },
-        { name: 'Belanja', type: 'expense', color: '#EC4899', budgetLimit: 400000, bulan, tahun, createdAt: new Date() }
+        { name: 'W2-phone', type: 'income', color: '#10B981', bulan, tahun, createdAt: new Date() },
+        { name: 'Amel cake', type: 'income', color: '#059669', bulan, tahun, createdAt: new Date() },
+        { name: 'Bagaskent gaming center', type: 'income', color: '#14B8A6', bulan, tahun, createdAt: new Date() }
       ];
       
       await db.categories.bulkAdd(defaultCategories);
