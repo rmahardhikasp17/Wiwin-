@@ -34,7 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/transaksi', icon: FileText, label: 'Transaksi' },
     { path: '/kategori', icon: FolderOpen, label: 'Kategori' },
     { path: '/laporan', icon: ChartPie, label: 'Laporan' },
-    { path: '/target', icon: Target, label: 'Target' },
+    { path: '/target', icon: Target, label: 'Tabungan' },
     { path: '/pengaturan', icon: Settings, label: 'Pengaturan' }
   ];
 
