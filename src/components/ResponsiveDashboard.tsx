@@ -185,7 +185,7 @@ const ResponsiveDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-blue-500 sm:col-span-2 lg:col-span-1">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600">Saldo</p>
@@ -195,6 +195,18 @@ const ResponsiveDashboard: React.FC = () => {
             </div>
             <div className="bg-blue-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
               <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-indigo-500">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Tabungan {getFormattedSelection()}</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 break-words">{formatCurrency(totalSavings)}</p>
+            </div>
+            <div className="bg-indigo-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
             </div>
           </div>
         </div>
