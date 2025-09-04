@@ -58,11 +58,10 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
   }, [isOpen, editingTransaction]);
 
   // Memoized filtered categories to prevent re-renders and duplicates
+  const allowedIncome = ['W2-phone', 'Amel cake', 'Bagaskent gaming center'];
   const filteredCategories = useMemo(() => {
-    if (!formData.type || formData.type === 'transfer_to_target') return [];
-    
-    const filtered = categories.filter(cat => cat.type === formData.type);
-    // Remove duplicates by creating a Map with unique names
+    if (formData.type !== 'income') return [];
+    const filtered = categories.filter(cat => cat.type === 'income' && allowedIncome.includes(cat.name));
     const uniqueCategories = Array.from(
       new Map(filtered.map(cat => [cat.name, cat])).values()
     );
@@ -78,8 +77,13 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
         toast.error('Semua field harus diisi untuk setor ke target');
         return;
       }
-    } else {
+    } else if (formData.type === 'income') {
       if (!formData.amount || !formData.description || !formData.category) {
+        toast.error('Semua field harus diisi');
+        return;
+      }
+    } else {
+      if (!formData.amount || !formData.description) {
         toast.error('Semua field harus diisi');
         return;
       }
@@ -105,8 +109,10 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
       if (formData.type === 'transfer_to_target') {
         transactionData.targetId = parseInt(formData.targetId);
         transactionData.category = 'Transfer ke Target';
-      } else {
+      } else if (formData.type === 'income') {
         transactionData.category = formData.category;
+      } else {
+        transactionData.category = 'Pengeluaran';
       }
 
       if (editingTransaction) {
@@ -272,7 +278,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                         </option>
                       ))}
                     </select>
-                    
+
                     {activeTargets.length > 0 && (
                       <div className="bg-blue-50 rounded-lg p-3">
                         <div className="text-xs sm:text-sm font-medium text-blue-600 mb-2">
@@ -281,14 +287,14 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                         <div className="space-y-1">
                           {activeTargets.map((target, index) => (
                             <div key={`active-target-${target.id}-${index}`} className="text-xs sm:text-sm text-blue-700">
-                              🎯 <span className="break-words whitespace-normal">{target.nama}</span> - 
+                              🎯 <span className="break-words whitespace-normal">{target.nama}</span> -
                               Target: {formatInputNumber(target.nominalTarget.toString())}
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
-                    
+
                     {activeTargets.length === 0 && !targetsLoading && (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                         <div className="text-xs sm:text-sm text-yellow-700 break-words whitespace-normal">
@@ -298,7 +304,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                     )}
                   </div>
                 </div>
-              ) : (
+              ) : formData.type === 'income' ? (
                 <div>
                   <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                     Kategori
@@ -311,30 +317,24 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                       required
                       disabled={isLoading}
                     >
-                      <option value="">
-                        {formData.type === 'income' ? 'Pilih kategori pemasukan' : 'Pilih kategori pengeluaran'}
-                      </option>
+                      <option value="">Pilih kategori pemasukan</option>
                       {filteredCategories.map((category, index) => (
                         <option key={`category-${category.id}-${index}`} value={category.name}>
                           {category.name}
                         </option>
                       ))}
                     </select>
-                    
+
                     {filteredCategories.length > 0 && (
                       <div className="bg-gray-50 rounded-lg p-3">
                         <div className="text-xs sm:text-sm font-medium text-gray-600 mb-2">
-                          {formData.type === 'income' ? 'Kategori Pemasukan:' : 'Kategori Pengeluaran:'}
+                          Kategori Pemasukan:
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {filteredCategories.map((category, index) => (
                             <span
                               key={`category-badge-${category.id}-${index}`}
-                              className={`inline-flex items-center px-2 py-1 rounded-full font-medium break-words ${
-                                formData.type === 'income' 
-                                  ? 'bg-amber-100 text-amber-800 text-xs leading-tight' 
-                                  : 'bg-red-100 text-red-800 text-xs leading-tight'
-                              }`}
+                              className="inline-flex items-center px-2 py-1 rounded-full font-medium break-words bg-amber-100 text-amber-800 text-xs leading-tight"
                               title={category.name}
                             >
                               <span className="break-words max-w-20 leading-tight">
@@ -345,6 +345,12 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                         </div>
                       </div>
                     )}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="text-xs sm:text-sm font-medium text-gray-600">
+                    Pengeluaran tidak memerlukan kategori. Isi deskripsi dan nominal.
                   </div>
                 </div>
               )
