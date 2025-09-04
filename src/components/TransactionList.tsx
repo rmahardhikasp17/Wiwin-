@@ -18,19 +18,20 @@ interface TransactionListProps {
   refreshTrigger: number;
   categoryFilter?: string;
   typeFilter?: string;
+  descriptionFilter?: string;
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({
   onEditTransaction,
   refreshTrigger,
   categoryFilter = 'all',
-  typeFilter = 'all'
+  typeFilter = 'all',
+  descriptionFilter = ''
 }) => {
   const { transactions: allTransactions, loading, loadTransactions, deleteTransaction } = useTransactionsByPeriode();
   const { getFormattedSelection } = useDateFilterHelper();
   const { targets } = useTarget();
 
-  // Apply filters
   const transactions = React.useMemo(() => {
     let filtered = allTransactions;
 
@@ -42,10 +43,14 @@ const TransactionList: React.FC<TransactionListProps> = ({
       filtered = filtered.filter(t => t.type === typeFilter);
     }
 
-    return filtered;
-  }, [allTransactions, categoryFilter, typeFilter]);
+    if (descriptionFilter && descriptionFilter.trim() !== '') {
+      const q = descriptionFilter.toLowerCase();
+      filtered = filtered.filter(t => (t.description || '').toLowerCase().includes(q));
+    }
 
-  // Reload when refreshTrigger changes
+    return filtered;
+  }, [allTransactions, categoryFilter, typeFilter, descriptionFilter]);
+
   React.useEffect(() => {
     loadTransactions();
   }, [refreshTrigger, loadTransactions]);
