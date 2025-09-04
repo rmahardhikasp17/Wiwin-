@@ -50,12 +50,11 @@ const Pengaturan: React.FC = () => {
     e.target.value = '';
   };
 
-  const handleResetThemeImage = async () => {
+  const handleResetBackground = async () => {
     try {
-      removeThemeColors();
-      await clearTheme();
-      setThemeImage(undefined);
-      toast({ title: 'Tema dikembalikan', description: 'Warna kembali ke bawaan.' });
+      await clearBackgroundImage();
+      setBgImage(undefined);
+      toast({ title: 'Background direset', description: 'Kembali ke bawaan.' });
     } catch (e) {}
   };
 
