@@ -52,27 +52,6 @@ const Kategori: React.FC = () => {
             </ul>
           </section>
 
-          {/* Pengeluaran */}
-          <section className="border rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-2 text-red-700">Pengeluaran</h2>
-            <div className="bg-gray-50 rounded-md p-3 border">
-              <div className="flex items-center text-gray-700 text-sm">
-                <Info className="h-4 w-4 mr-2" />
-                Tanpa sub-kategori. Saat menambah pengeluaran, isi deskripsi dan nominal saja.
-              </div>
-            </div>
-          </section>
-
-          {/* Tabungan */}
-          <section className="border rounded-lg p-4">
-            <h2 className="text-lg font-semibold mb-2 text-blue-700">Tabungan</h2>
-            <div className="bg-blue-50 rounded-md p-3 border border-blue-100">
-              <div className="flex items-center text-blue-700 text-sm">
-                <Info className="h-4 w-4 mr-2" />
-                Hanya setor saldo ke tabungan ("Setor ke Target"). Penarikan tetap tampil di histori, UI ini tidak mendukung tarik.
-              </div>
-            </div>
-          </section>
         </div>
       </div>
     </div>
