@@ -101,13 +101,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         to={item.path}
         onClick={() => {
           setMobileMenuOpen(false);
-          // Add haptic feedback if available
           if (navigator.vibrate) {
             navigator.vibrate(30);
           }
         }}
         aria-label={`Navigasi ke ${item.label}`}
-        className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 min-w-0 flex-1 max-w-[80px] touch-target ${
+        className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg transition-all duration-200 min-w-0 flex-1 max-w-[72px] touch-target ${
           isActive
             ? 'text-amber-700 bg-amber-50 shadow-sm'
             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 active:bg-gray-100 active:scale-95'
@@ -199,67 +198,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Mobile Bottom Navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
         {/* Main Bottom Navigation */}
-        <div className="px-2 sm:px-4 py-1.5 sm:py-2">
-          <nav className="flex justify-between items-center">
-            {/* First 4 navigation items */}
-            <div className="flex justify-around flex-1 gap-1">
-              {navItems.slice(0, 4).map((item) => (
-                <MobileNavItem key={item.path} item={item} />
-              ))}
-            </div>
-
-            {/* More menu button */}
-            <button
-              onClick={() => {
-                setMobileMenuOpen(!mobileMenuOpen);
-                // Add haptic feedback if available
-                if (navigator.vibrate) {
-                  navigator.vibrate(30);
-                }
-              }}
-              aria-label={mobileMenuOpen ? "Tutup menu tambahan" : "Buka menu tambahan"}
-              aria-expanded={mobileMenuOpen}
-              className={`flex flex-col items-center space-y-0.5 sm:space-y-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 touch-target ${
-                mobileMenuOpen
-                  ? 'text-amber-700 bg-amber-50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 active:bg-gray-100'
-              }`}
-            >
-              {mobileMenuOpen ? (
-                <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
-              ) : (
-                <MoreHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
-              )}
-              <span className="text-xs font-medium">Lainnya</span>
-            </button>
+        <div className="px-1.5 sm:px-3 py-1 sm:py-1.5">
+          <nav className="flex justify-around items-center gap-1">
+            {navItems.map((item) => (
+              <MobileNavItem key={item.path} item={item} />
+            ))}
           </nav>
         </div>
 
-        {/* Popup Menu for Additional Items */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              transition={{ duration: 0.2 }}
-              className="bg-white border-t border-gray-200 px-2 sm:px-4 py-2 sm:py-3"
-            >
-              <div className="flex justify-around gap-1">
-                {navItems.slice(4).map((item) => (
-                  <MobileNavItem key={item.path} item={item} />
-                ))}
-              </div>
-
-              {/* Swipe hint */}
-              <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-100">
-                <p className="text-xs text-gray-500 text-center">
-                  💡 Geser kiri/kanan untuk berpindah halaman
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Bottom padding for mobile navigation */}
