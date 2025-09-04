@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
