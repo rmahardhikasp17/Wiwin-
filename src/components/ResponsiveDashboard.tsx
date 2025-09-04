@@ -160,7 +160,7 @@ const ResponsiveDashboard: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-amber-600">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
