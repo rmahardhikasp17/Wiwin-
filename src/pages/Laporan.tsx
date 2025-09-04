@@ -51,7 +51,6 @@ const Laporan: React.FC = () => {
 
   const pieColors = ['#10B981', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4'];
 
-  // Calculate totals from current period transactions
   const totalIncome = transactions
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
@@ -71,7 +70,6 @@ const Laporan: React.FC = () => {
     try {
       const allTransactions = await db.transactions.toArray();
       
-      // Calculate monthly data for chart (entire year)
       const monthlyStats: MonthlyData[] = [];
       for (let i = 0; i < 12; i++) {
         const monthTransactions = allTransactions.filter(t => {
@@ -162,7 +160,6 @@ const Laporan: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Laporan Keuangan</h1>
@@ -176,7 +173,6 @@ const Laporan: React.FC = () => {
         </Button>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -226,9 +222,7 @@ const Laporan: React.FC = () => {
         )}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bar Chart with Balance */}
         <Card>
           <CardHeader>
             <CardTitle>Grafik Bulanan {tahun}</CardTitle>
@@ -262,7 +256,6 @@ const Laporan: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Pie Chart */}
         <Card>
           <CardHeader>
             <CardTitle>Distribusi {getMonthName(bulan)} {tahun}</CardTitle>
@@ -276,7 +269,7 @@ const Laporan: React.FC = () => {
                     data={pieData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
+                    outerRadius={60}
                     dataKey="value"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
@@ -295,7 +288,6 @@ const Laporan: React.FC = () => {
         </Card>
       </div>
 
-      {/* Active Targets Section */}
       {getActiveTargetProgress().length > 0 && (
         <Card>
           <CardHeader>
@@ -362,9 +354,6 @@ const Laporan: React.FC = () => {
         </Card>
       )}
 
-
-
-      {/* Transaction List */}
       <Card>
         <CardHeader>
           <CardTitle>Daftar Transaksi</CardTitle>
@@ -372,7 +361,7 @@ const Laporan: React.FC = () => {
             Semua transaksi untuk {getMonthName(bulan)} {tahun} ({transactions.length} transaksi)
           </CardDescription>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
+        <CardContent className="overflow-x-auto max-h-[60vh] overflow-y-auto">
           <TransactionTable transactions={transactions} />
         </CardContent>
       </Card>

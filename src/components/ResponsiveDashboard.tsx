@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUp, ArrowDown, Calendar, FileText, Plus, TrendingUp, AlertTriangle } from 'lucide-react';
-import { Transaction, Category } from '../services/database';
+import { Transaction, Category, db } from '../services/database';
 import { useTransactionsByPeriode } from '../hooks/useTransactionsByPeriode';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
@@ -44,6 +44,7 @@ const ResponsiveDashboard: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [dailyData, setDailyData] = useState<DailyData[]>([]);
   const [categoryBudgets, setCategoryBudgets] = useState<CategoryBudget[]>([]);
+  const [totalSavingsOverall, setTotalSavingsOverall] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -68,6 +69,9 @@ const ResponsiveDashboard: React.FC = () => {
 
       setTotalIncome(income);
       setTotalExpense(expense);
+
+      const allSavings = await db.transactions.where('type').equals('transfer_to_target').toArray();
+      setTotalSavingsOverall(allSavings.reduce((sum, t) => sum + t.amount, 0));
 
       // Generate daily data for the last 7 days
       const last7Days = generateLast7DaysData(allTransactions);
@@ -149,6 +153,7 @@ const ResponsiveDashboard: React.FC = () => {
     );
   }
 
+
   return (
     <div className="space-y-4 sm:space-y-6 pb-20 lg:pb-0">
       {/* Welcome Message */}
@@ -160,7 +165,7 @@ const ResponsiveDashboard: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-amber-600">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
@@ -185,7 +190,7 @@ const ResponsiveDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-blue-500 sm:col-span-2 lg:col-span-1">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600">Saldo</p>
@@ -198,12 +203,24 @@ const ResponsiveDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-indigo-500">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Tabungan {getFormattedSelection()}</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 break-words">{formatCurrency(totalSavingsOverall)}</p>
+            </div>
+            <div className="bg-indigo-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Charts and Budget Alerts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Daily Chart */}
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <div className="hidden">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             <span className="truncate">Tren 7 Hari Terakhir</span>
@@ -234,11 +251,11 @@ const ResponsiveDashboard: React.FC = () => {
         </div>
 
         {/* Target Progress (if any active targets) */}
-        {getActiveTargetProgress().length > 0 && (
+        {false && (
           <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
               <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-              <span className="truncate">Target Tabungan Aktif</span>
+              <span className="truncate">Tabungan</span>
             </h2>
             <div className="space-y-3 sm:space-y-4">
               {getActiveTargetProgress().slice(0, 3).map((tp) => (
@@ -267,7 +284,7 @@ const ResponsiveDashboard: React.FC = () => {
         )}
 
         {/* Budget Progress */}
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <div className="hidden">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
             <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             <span className="truncate">Monitor Anggaran</span>

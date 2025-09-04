@@ -6,6 +6,7 @@ import TransactionList from '../components/TransactionList';
 import TransactionFormModal from '../components/TransactionFormModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const Transaksi: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -14,6 +15,7 @@ const Transaksi: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [searchDescription, setSearchDescription] = useState<string>('');
 
   useEffect(() => {
     loadCategories();
@@ -46,7 +48,6 @@ const Transaksi: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -62,7 +63,6 @@ const Transaksi: React.FC = () => {
           </button>
         </div>
 
-        {/* Filter Section */}
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex items-center gap-2">
@@ -95,16 +95,12 @@ const Transaksi: React.FC = () => {
                   <SelectContent className="bg-white z-50 max-h-[200px] overflow-y-auto">
                     <SelectItem value="all">Semua Kategori</SelectItem>
                     {(() => {
-                      // Filter categories based on selected type and remove duplicates
                       const filteredCategories = selectedType === 'all' ? categories : 
                         selectedType === 'transfer_to_target' ? [] :
                         categories.filter(cat => cat.type === selectedType);
-                      
-                      // Remove duplicates by creating a Map with unique names
                       const uniqueCategories = Array.from(
                         new Map(filteredCategories.map(cat => [cat.name, cat])).values()
                       );
-                      
                       return uniqueCategories.map((category) => (
                         <SelectItem key={category.id} value={category.name}>
                           <div className="flex items-center gap-2">
@@ -123,12 +119,22 @@ const Transaksi: React.FC = () => {
                 </Select>
               </div>
 
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-64">
+                <label className="text-sm text-gray-600">Cari deskripsi:</label>
+                <Input
+                  value={searchDescription}
+                  onChange={(e) => setSearchDescription(e.target.value)}
+                  placeholder="Ketik untuk mencari..."
+                />
+              </div>
+
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
                   setSelectedCategory('all');
                   setSelectedType('all');
+                  setSearchDescription('');
                 }}
                 className="w-full sm:w-auto"
               >
@@ -139,15 +145,14 @@ const Transaksi: React.FC = () => {
         </div>
       </div>
 
-      {/* Transaction List */}
       <TransactionList
         onEditTransaction={handleEditTransaction}
         refreshTrigger={refreshTrigger}
         categoryFilter={selectedCategory}
         typeFilter={selectedType}
+        descriptionFilter={searchDescription}
       />
 
-      {/* Transaction Form Modal */}
       <TransactionFormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

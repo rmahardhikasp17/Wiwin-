@@ -33,9 +33,9 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
           <TableRow>
             <TableHead className="whitespace-nowrap">Tanggal</TableHead>
             <TableHead className="whitespace-nowrap">Deskripsi</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Jumlah</TableHead>
             <TableHead className="whitespace-nowrap">Kategori</TableHead>
             <TableHead className="whitespace-nowrap">Jenis</TableHead>
-            <TableHead className="text-right whitespace-nowrap">Jumlah</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -45,6 +45,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
                 {formatDate(transaction.date)}
               </TableCell>
               <TableCell className="max-w-[220px] truncate">{transaction.description}</TableCell>
+              <TableCell className="text-right whitespace-nowrap">
+                <span className={`font-semibold ${
+                  transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                </span>
+              </TableCell>
               <TableCell className="max-w-[160px] truncate">{transaction.category}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -65,13 +72,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
                     </>
                   )}
                 </div>
-              </TableCell>
-              <TableCell className="text-right whitespace-nowrap">
-                <span className={`font-semibold ${
-                  transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                </span>
               </TableCell>
             </TableRow>
           ))}

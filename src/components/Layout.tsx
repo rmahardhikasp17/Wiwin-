@@ -3,10 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  LayoutDashboard, 
-  FileText, 
-  FolderOpen, 
-  ChartPie, 
+  LayoutDashboard,
+  FileText,
+  ChartPie,
   Settings,
   Calendar,
   Target,
@@ -32,7 +31,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navItems = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/transaksi', icon: FileText, label: 'Transaksi' },
-    { path: '/kategori', icon: FolderOpen, label: 'Kategori' },
     { path: '/laporan', icon: ChartPie, label: 'Laporan' },
     { path: '/target', icon: Target, label: 'Tabungan' },
     { path: '/pengaturan', icon: Settings, label: 'Pengaturan' }

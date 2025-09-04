@@ -1,40 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUp, ArrowDown, Calendar, FileText, Plus, TrendingUp, AlertTriangle } from 'lucide-react';
-import { Transaction, Category } from '../services/database';
+import { ArrowUp, ArrowDown, Calendar, FileText, Plus, TrendingUp } from 'lucide-react';
+import { Transaction } from '../services/database';
 import { useTransactionsByPeriode } from '../hooks/useTransactionsByPeriode';
 import { useKategoriByPeriode } from '../hooks/useKategoriByPeriode';
 import { useDateFilterHelper } from '../hooks/useDateFilterHelper';
 import { useUserSettings } from '../hooks/useUserSettings';
 import { formatCurrency } from '../utils/formatCurrency';
 import { useTargetProgress } from '@/hooks/useTargetProgress';
-import { useTotalBudget } from '@/hooks/useTotalBudget';
 import TransactionFormModal from './TransactionFormModal';
 import { toast } from 'sonner';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Progress } from '@/components/ui/progress';
-
-interface DailyData {
-  date: string;
-  income: number;
-  expense: number;
-}
-
-interface CategoryBudget {
-  id: number;
-  name: string;
-  spent: number;
-  budget: number;
-  color: string;
-  percentage: number;
-}
 
 const Dashboard: React.FC = () => {
   const { transactions: allTransactions, getBalance } = useTransactionsByPeriode();
-  const { categories } = useKategoriByPeriode();
+  useKategoriByPeriode();
   const { getFormattedSelection } = useDateFilterHelper();
   const { getActiveTargetProgress } = useTargetProgress();
   const { userSettings } = useUserSettings();
-  const { totalBudget } = useTotalBudget();
   
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [totalIncome, setTotalIncome] = useState(0);
@@ -42,22 +24,18 @@ const Dashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [dailyData, setDailyData] = useState<DailyData[]>([]);
-  const [categoryBudgets, setCategoryBudgets] = useState<CategoryBudget[]>([]);
 
   useEffect(() => {
     loadData();
-  }, [refreshTrigger, allTransactions, categories]);
+  }, [refreshTrigger, allTransactions]);
 
   const loadData = async () => {
     try {
       setIsLoading(true);
 
-      // Get recent transactions (limit 5)
       const recentTrans = allTransactions.slice(0, 5);
       setRecentTransactions(recentTrans);
 
-      // Calculate totals for current period
       const income = allTransactions
         .filter(t => t.type === 'income')
         .reduce((sum, t) => sum + t.amount, 0);
@@ -69,14 +47,6 @@ const Dashboard: React.FC = () => {
       setTotalIncome(income);
       setTotalExpense(expense);
 
-      // Generate daily data for the last 7 days
-      const last7Days = generateLast7DaysData(allTransactions);
-      setDailyData(last7Days);
-
-      // Calculate category budgets
-      const budgetData = await calculateCategoryBudgets(categories, allTransactions);
-      setCategoryBudgets(budgetData);
-
     } catch (error) {
       console.error('Error loading data:', error);
       toast.error('Gagal memuat data');
@@ -85,61 +55,9 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const generateLast7DaysData = (transactions: Transaction[]): DailyData[] => {
-    const last7Days = [];
-    const today = new Date();
-    
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-      
-      const dayTransactions = transactions.filter(t => t.date === dateStr);
-      const income = dayTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-      const expense = dayTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-      
-      last7Days.push({
-        date: date.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' }),
-        income,
-        expense
-      });
-    }
-    
-    return last7Days;
-  };
-
-  const calculateCategoryBudgets = async (categories: Category[], transactions: Transaction[]): Promise<CategoryBudget[]> => {
-    const budgetCategories = categories.filter(cat => cat.type === 'expense' && cat.budgetLimit);
-    
-    return budgetCategories.map(category => {
-      const spent = transactions
-        .filter(t => t.category === category.name && t.type === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0);
-      
-      const percentage = category.budgetLimit ? (spent / category.budgetLimit) * 100 : 0;
-      
-      return {
-        id: category.id!,
-        name: category.name,
-        spent,
-        budget: category.budgetLimit || 0,
-        color: category.color,
-        percentage: Math.min(percentage, 100)
-      };
-    });
-  };
-
   const handleTransactionSaved = () => {
     setRefreshTrigger(prev => prev + 1);
     toast.success('Transaksi berhasil ditambahkan!');
-  };
-
-
-  const getBudgetStatus = (percentage: number) => {
-    if (percentage > 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Melebihi batas!' };
-    if (percentage === 100) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Mencapai batas' };
-    if (percentage >= 80) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Mendekati batas' };
-    return { color: 'text-amber-700', bg: 'bg-emerald-500', status: 'Dalam batas' };
   };
 
   if (isLoading) {
@@ -152,14 +70,13 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Welcome Message */}
       <div className="bg-gradient-to-r from-neutral-900 to-amber-600 rounded-xl shadow-sm p-4 sm:p-6 text-white">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">Selamat datang, {userSettings.userName}! 👋</h1>
           <p className="text-amber-100 mt-1 text-sm sm:text-base">Ringkasan keuangan Anda untuk {getFormattedSelection()}</p>
         </div>
       </div>
-      {/* Summary Cards */}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-amber-600">
           <div className="flex items-center justify-between">
@@ -200,122 +117,39 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Charts and Budget Alerts */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-        {/* Daily Chart */}
+      {getActiveTargetProgress().length > 0 && (
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
             <TrendingUp className="h-5 w-5 mr-2" />
-            Tren 7 Hari Terakhir
+            Target Tabungan Aktif
           </h2>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dailyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis tickFormatter={(value) => `${value / 1000}k`} />
-                <Tooltip 
-                  formatter={(value: number) => [formatCurrency(value), '']}
-                  labelStyle={{ color: '#374151' }}
-                />
-                <Bar dataKey="income" fill="#C6A15B" name="Pemasukan" />
-                <Bar dataKey="expense" fill="#EF4444" name="Pengeluaran" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Target Progress (if any active targets) */}
-        {getActiveTargetProgress().length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-              <TrendingUp className="h-5 w-5 mr-2" />
-              Target Tabungan Aktif
-            </h2>
-            <div className="space-y-4">
-              {getActiveTargetProgress().slice(0, 3).map((tp) => (
-                <div key={tp.target.id} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-medium text-gray-900">{tp.target.nama}</span>
-                      <p className="text-xs text-gray-500">
-                        Target: {formatCurrency(tp.target.nominalTarget)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold text-amber-700">
-                        {tp.percentage.toFixed(0)}%
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatCurrency(tp.progress)}
-                      </p>
-                    </div>
-                  </div>
-                  <Progress value={tp.percentage} className="h-2" />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Budget Progress */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2" />
-            Monitor Anggaran
-          </h2>
-          {totalBudget > 0 && (
-            <div className="bg-blue-50 rounded-lg p-3 mb-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-blue-800">Total Anggaran Bulanan:</span>
-                <span className="text-sm font-bold text-blue-900">{formatCurrency(totalBudget)}</span>
-              </div>
-            </div>
-          )}
           <div className="space-y-4">
-            {categoryBudgets.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">Belum ada kategori dengan batas anggaran</p>
-            ) : (
-              categoryBudgets.map((category) => {
-                const status = getBudgetStatus(category.percentage);
-                return (
-                  <div key={category.id} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <div 
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: category.color }}
-                        ></div>
-                        <span className="font-medium text-gray-900">{category.name}</span>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-sm font-semibold ${status.color}`}>
-                          {category.percentage.toFixed(0)}%
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {formatCurrency(category.spent)} / {formatCurrency(category.budget)}
-                        </p>
-                      </div>
-                    </div>
-                    <Progress 
-                      value={category.percentage} 
-                      className="h-2"
-                    />
-                    {category.percentage >= 75 && (
-                      <p className={`text-xs ${status.color} font-medium`}>
-                        ⚠️ {status.status}
-                      </p>
-                    )}
+            {getActiveTargetProgress().slice(0, 3).map((tp) => (
+              <div key={tp.target.id} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <span className="font-medium text-gray-900">{tp.target.nama}</span>
+                    <p className="text-xs text-gray-500">
+                      Target: {formatCurrency(tp.target.nominalTarget)}
+                    </p>
                   </div>
-                );
-              })
-            )}
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-amber-700">
+                      {tp.percentage.toFixed(0)}%
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatCurrency(tp.progress)}
+                    </p>
+                  </div>
+                </div>
+                <Progress value={tp.percentage} className="h-2" />
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Quick Add Transaction */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
             <FileText className="h-5 w-5 mr-2" />
@@ -330,7 +164,6 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
 
-        {/* Recent Transactions */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Transaksi Terbaru</h2>
           <div className="space-y-4">
@@ -371,7 +204,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Transaction Form Modal */}
       <TransactionFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
