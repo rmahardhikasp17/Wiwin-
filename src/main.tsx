@@ -1,23 +1,31 @@
-
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { initializeDatabase } from './services/database'
 
-// Initialize database
-initializeDatabase().catch(console.error);
+import { loadThemeFromSettings } from './utils/theme'
 
-// Register service worker for PWA
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('SW registered: ', registration);
-      })
-      .catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError);
-      });
-  });
-}
+;(async () => {
+  // Initialize database and load theme before first paint
+  try {
+    await initializeDatabase();
+    await loadThemeFromSettings();
+  } catch (e) {
+    // noop
+  }
 
-createRoot(document.getElementById("root")!).render(<App />);
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('SW registered: ', registration);
+        })
+        .catch((registrationError) => {
+          console.log('SW registration failed: ', registrationError);
+        });
+    });
+  }
+
+  createRoot(document.getElementById('root')!).render(<App />);
+})();
