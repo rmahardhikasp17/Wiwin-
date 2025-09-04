@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Calendar } from 'lucide-react';
 import {
@@ -52,7 +51,7 @@ const FilterTanggalGlobal: React.FC = () => {
           </Select>
 
           <Select value={tahun.toString()} onValueChange={(value) => setTahun(Number(value))}>
-            <SelectTrigger className="w-16 sm:w-20 h-8 border-white/20 bg-white/10 text-white text-sm focus:ring-white/30">
+            <SelectTrigger className="w-auto sm:w-20 h-8 flex-none border-white/20 bg-white/10 text-white text-sm focus:ring-white/30">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white border border-gray-200 z-50">
