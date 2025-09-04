@@ -215,7 +215,7 @@ const ResponsiveDashboard: React.FC = () => {
       {/* Charts and Budget Alerts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Daily Chart */}
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <div className="hidden">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             <span className="truncate">Tren 7 Hari Terakhir</span>
