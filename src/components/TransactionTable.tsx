@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, TrendingUp, TrendingDown } from 'lucide-react';
+import { Calendar, TrendingUp, TrendingDown, Target } from 'lucide-react';
 import { Transaction } from '../services/database';
 import { formatCurrency } from '../utils/formatCurrency';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -51,6 +51,11 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
                   <>
                     <TrendingUp className="h-4 w-4 text-green-600" />
                     <span className="text-green-600 text-sm font-medium">Pemasukan</span>
+                  </>
+                ) : transaction.type === 'transfer_to_target' ? (
+                  <>
+                    <Target className="h-4 w-4 text-blue-600" />
+                    <span className="text-blue-600 text-sm font-medium">Tabungan</span>
                   </>
                 ) : (
                   <>
