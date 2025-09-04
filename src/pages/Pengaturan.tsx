@@ -5,10 +5,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Download, Upload, Trash2, Sun, Moon, Monitor, User, Save } from 'lucide-react';
+import { Download, Upload, Trash2, Sun, Moon, Monitor, User, Save, Image as ImageIcon, X } from 'lucide-react';
 import { db } from '@/services/database';
 import { useDateFilterHelper } from '@/hooks/useDateFilterHelper';
 import { useUserSettings } from '@/hooks/useUserSettings';
+import { getBackgroundImage, saveBackgroundImage, clearBackgroundImage } from '@/utils/background';
 
 const Pengaturan: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
@@ -21,7 +22,43 @@ const Pengaturan: React.FC = () => {
     userEmail: ''
   });
   const { bulan, tahun, getMonthName } = useDateFilterHelper();
+  const [bgImage, setBgImage] = useState<string | undefined>(undefined);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
+
+  React.useEffect(() => {
+    (async () => {
+      const img = await getBackgroundImage();
+      setBgImage(img);
+    })();
+  }, []);
+
+  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsProcessingImage(true);
+    try {
+      const dataUrl = await fileToDataURL(file);
+      await saveBackgroundImage(dataUrl);
+      setBgImage(dataUrl);
+      window.dispatchEvent(new CustomEvent('bg-image-updated', { detail: dataUrl }));
+      toast({ title: 'Background diperbarui', description: 'Gambar latar berhasil diterapkan.' });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Gagal memproses gambar', description: 'Pastikan file gambar valid.', variant: 'destructive' });
+    }
+    setIsProcessingImage(false);
+    e.target.value = '';
+  };
+
+  const handleResetBackground = async () => {
+    try {
+      await clearBackgroundImage();
+      setBgImage(undefined);
+      window.dispatchEvent(new CustomEvent('bg-image-updated', { detail: undefined }));
+      toast({ title: 'Background direset', description: 'Kembali ke bawaan.' });
+    } catch (e) {}
+  };
 
   const handleSeedDemoAppend = async () => {
     if (isSeeding) return;
@@ -372,7 +409,7 @@ const Pengaturan: React.FC = () => {
             Pilih tampilan yang sesuai dengan preferensi Anda
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <Button
               variant={theme === 'light' ? 'default' : 'outline'}
@@ -398,6 +435,33 @@ const Pengaturan: React.FC = () => {
               <Monitor className="h-4 w-4" />
               Sistem
             </Button>
+          </div>
+
+          <div className="mt-2 p-4 border rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5" />
+                <h3 className="font-medium">Background dari Gambar</h3>
+              </div>
+              {bgImage && (
+                <Button size="sm" variant="ghost" onClick={handleResetBackground} className="text-red-600">
+                  <X className="h-4 w-4" /> Reset
+                </Button>
+              )}
+            </div>
+
+            <p className="text-sm text-gray-600 mb-3">Unggah gambar (logo/foto) untuk dijadikan latar aplikasi.</p>
+            <div className="flex items-center gap-4">
+              <input id="bg-image" type="file" accept="image/*" className="hidden" onChange={handleBackgroundUpload} />
+              <Button asChild variant="outline" disabled={isProcessingImage}>
+                <label htmlFor="bg-image" className="cursor-pointer flex items-center gap-2">
+                  <Upload className="h-4 w-4" /> {isProcessingImage ? 'Memproses...' : 'Unggah Gambar'}
+                </label>
+              </Button>
+              {bgImage && (
+                <img src={bgImage} alt="Background" className="h-12 w-12 rounded object-cover border" />
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -521,5 +585,14 @@ const Pengaturan: React.FC = () => {
     </div>
   );
 };
+
+function fileToDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 export default Pengaturan;

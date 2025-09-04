@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,6 +17,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import FilterTanggalGlobal from './FilterTanggalGlobal';
+
+import { getBackgroundImage } from '@/utils/background';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -118,8 +120,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     );
   };
 
+  const [bgImage, setBgImage] = useState<string | undefined>();
+  useEffect(() => {
+    (async () => setBgImage(await getBackgroundImage()))();
+    const onUpdated = (e: Event) => {
+      const dataUrl = (e as CustomEvent<string | undefined>).detail;
+      setBgImage(dataUrl);
+    };
+    window.addEventListener('bg-image-updated', onUpdated as EventListener);
+    return () => window.removeEventListener('bg-image-updated', onUpdated as EventListener);
+  }, []);
+
+  const wrapperStyle = bgImage
+    ? {
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      } as React.CSSProperties
+    : undefined;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-950 to-neutral-900 flex flex-col">
+    <div className={bgImage ? "min-h-screen flex flex-col" : "min-h-screen bg-gradient-to-br from-neutral-950 to-neutral-900 flex flex-col"} style={wrapperStyle}>
       {/* Mobile Header */}
       <header className="bg-gradient-to-r from-neutral-900 to-amber-600 shadow-lg lg:hidden flex-shrink-0">
         <div className="px-3 sm:px-4 py-3">
