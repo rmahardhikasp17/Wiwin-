@@ -121,7 +121,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const [bgImage, setBgImage] = useState<string | undefined>();
-  useEffect(() => { (async () => setBgImage(await getBackgroundImage()))(); }, []);
+  useEffect(() => {
+    (async () => setBgImage(await getBackgroundImage()))();
+    const onUpdated = (e: Event) => {
+      const dataUrl = (e as CustomEvent<string | undefined>).detail;
+      setBgImage(dataUrl);
+    };
+    window.addEventListener('bg-image-updated', onUpdated as EventListener);
+    return () => window.removeEventListener('bg-image-updated', onUpdated as EventListener);
+  }, []);
 
   const wrapperStyle = bgImage
     ? {
