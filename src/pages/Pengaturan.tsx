@@ -28,8 +28,8 @@ const Pengaturan: React.FC = () => {
 
   React.useEffect(() => {
     (async () => {
-      const img = await getSavedThemeImage();
-      setThemeImage(img);
+      const img = await getBackgroundImage();
+      setBgImage(img);
     })();
   }, []);
 
