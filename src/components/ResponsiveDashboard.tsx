@@ -165,12 +165,12 @@ const ResponsiveDashboard: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-amber-600">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 xl:gap-6">
+        <div className="bg-white rounded-xl shadow-sm p-3 lg:p-4 xl:p-6 border-l-4 border-amber-600">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Pemasukan {getFormattedSelection()}</p>
-              <p className="text-lg sm:text-2xl font-bold text-gray-900 break-words">{formatCurrency(totalIncome)}</p>
+              <p className="text-base md:text-xl xl:text-2xl font-bold text-gray-900 truncate">{formatCurrency(totalIncome)}</p>
             </div>
             <div className="bg-amber-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
               <ArrowUp className="h-5 w-5 sm:h-6 sm:w-6 text-amber-700" />
@@ -178,11 +178,11 @@ const ResponsiveDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-red-500">
+        <div className="bg-white rounded-xl shadow-sm p-3 lg:p-4 xl:p-6 border-l-4 border-red-500">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Pengeluaran {getFormattedSelection()}</p>
-              <p className="text-lg sm:text-2xl font-bold text-gray-900 break-words">{formatCurrency(totalExpense)}</p>
+              <p className="text-base md:text-xl xl:text-2xl font-bold text-gray-900 truncate">{formatCurrency(totalExpense)}</p>
             </div>
             <div className="bg-red-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
               <ArrowDown className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
@@ -190,11 +190,11 @@ const ResponsiveDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-blue-500">
+        <div className="bg-white rounded-xl shadow-sm p-3 lg:p-4 xl:p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm font-medium text-gray-600">Saldo</p>
-              <p className={`text-lg sm:text-2xl font-bold break-words ${totalIncome - totalExpense >= 0 ? 'text-amber-700' : 'text-red-600'}`}>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Saldo</p>
+              <p className={`text-base md:text-xl xl:text-2xl font-bold truncate ${totalIncome - totalExpense >= 0 ? 'text-amber-700' : 'text-red-600'}`}>
                 {formatCurrency(totalIncome - totalExpense)}
               </p>
             </div>
@@ -204,11 +204,11 @@ const ResponsiveDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border-l-4 border-indigo-500">
+        <div className="bg-white rounded-xl shadow-sm p-3 lg:p-4 xl:p-6 border-l-4 border-indigo-500">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Tabungan {getFormattedSelection()}</p>
-              <p className="text-lg sm:text-2xl font-bold text-gray-900 break-words">{formatCurrency(totalSavingsOverall)}</p>
+              <p className="text-base md:text-xl xl:text-2xl font-bold text-gray-900 truncate">{formatCurrency(totalSavingsOverall)}</p>
             </div>
             <div className="bg-indigo-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
               <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
