@@ -439,25 +439,25 @@ const Pengaturan: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <ImageIcon className="h-5 w-5" />
-                <h3 className="font-medium">Tema dari Gambar</h3>
+                <h3 className="font-medium">Background dari Gambar</h3>
               </div>
-              {themeImage && (
-                <Button size="sm" variant="ghost" onClick={handleResetThemeImage} className="text-red-600">
+              {bgImage && (
+                <Button size="sm" variant="ghost" onClick={handleResetBackground} className="text-red-600">
                   <X className="h-4 w-4" /> Reset
                 </Button>
               )}
             </div>
 
-            <p className="text-sm text-gray-600 mb-3">Unggah gambar (logo/foto) untuk menyesuaikan warna utama aplikasi secara otomatis.</p>
+            <p className="text-sm text-gray-600 mb-3">Unggah gambar (logo/foto) untuk dijadikan latar aplikasi.</p>
             <div className="flex items-center gap-4">
-              <input id="theme-image" type="file" accept="image/*" className="hidden" onChange={handleThemeImageUpload} />
+              <input id="bg-image" type="file" accept="image/*" className="hidden" onChange={handleBackgroundUpload} />
               <Button asChild variant="outline" disabled={isProcessingImage}>
-                <label htmlFor="theme-image" className="cursor-pointer flex items-center gap-2">
+                <label htmlFor="bg-image" className="cursor-pointer flex items-center gap-2">
                   <Upload className="h-4 w-4" /> {isProcessingImage ? 'Memproses...' : 'Unggah Gambar'}
                 </label>
               </Button>
-              {themeImage && (
-                <img src={themeImage} alt="Tema" className="h-12 w-12 rounded object-cover border" />
+              {bgImage && (
+                <img src={bgImage} alt="Background" className="h-12 w-12 rounded object-cover border" />
               )}
             </div>
           </div>
