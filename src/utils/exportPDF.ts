@@ -173,10 +173,10 @@ export const exportToPDF = async (data: ExportData) => {
 
       let typeText = 'Keluar';
       if (transaction.type === 'income') typeText = 'Masuk';
-      else if (transaction.type === 'transfer_to_target') typeText = 'Target';
+      else if (transaction.type === 'transfer_to_target') typeText = 'Tabungan';
 
       const formattedAmount = formatCurrency(transaction.amount);
-      const prefix = transaction.type === 'income' ? '+' : transaction.type === 'transfer_to_target' ? 'Target ' : '-';
+      const prefix = transaction.type === 'income' ? '+' : '-';
       const amount = `${prefix}${formattedAmount}`;
 
       // Wrap description text
