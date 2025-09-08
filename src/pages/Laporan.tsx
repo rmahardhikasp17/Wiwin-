@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
@@ -156,6 +156,16 @@ const Laporan: React.FC = () => {
 
     await exportToPDF(exportData);
   };
+
+  const incomeCategoryTotals = useMemo(() => {
+    const targetNames = ['W2-phone', 'Amel cake', 'Bagaskent gaming center'];
+    return targetNames.map((name) => ({
+      name,
+      total: transactions
+        .filter(t => t.type === 'income' && t.category === name)
+        .reduce((sum, t) => sum + t.amount, 0)
+    }));
+  }, [transactions]);
 
   const pieData = [
     { name: 'Pemasukan', value: totalIncome, fill: '#10B981' },
@@ -377,6 +387,25 @@ const Laporan: React.FC = () => {
         </CardHeader>
         <CardContent className="overflow-x-auto max-h-[60vh] overflow-y-auto">
           <TransactionTable transactions={transactions} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Total Nominal per Kategori (Pemasukan)</CardTitle>
+          <CardDescription>
+            Tiga kategori utama pada periode ini
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {incomeCategoryTotals.map((item) => (
+              <div key={item.name} className="rounded-lg border border-gray-200 p-4 bg-white">
+                <p className="text-sm text-gray-600">{item.name}</p>
+                <p className="mt-1 text-xl font-bold text-green-600">{formatCurrency(item.total)}</p>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
