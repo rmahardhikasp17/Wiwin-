@@ -15,6 +15,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 import { db } from '@/services/database';
 import TransactionTable from '@/components/TransactionTable';
 import { exportToPDF } from '@/utils/exportPDF';
+import { exportTransactionsToCSV } from '@/utils/exportExcel';
 import { FileDown } from 'lucide-react';
 
 interface MonthlyData {
