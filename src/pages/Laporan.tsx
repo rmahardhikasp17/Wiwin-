@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar, TrendingUp, TrendingDown, AlertCircle, CheckCircle, Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
@@ -15,6 +15,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 import { db } from '@/services/database';
 import TransactionTable from '@/components/TransactionTable';
 import { exportToPDF } from '@/utils/exportPDF';
+import { exportTransactionsToXLS } from '@/utils/exportXls';
 import { FileDown } from 'lucide-react';
 
 interface MonthlyData {
@@ -145,6 +146,7 @@ const Laporan: React.FC = () => {
         totalAmount: cat.totalAmount,
         percentage: cat.percentage
       })),
+      incomeCategoryTotals: incomeCategoryTotals,
       activeTargets: activeTargets.map(tp => ({
         nama: tp.target.nama,
         nominalTarget: tp.target.nominalTarget,
@@ -156,6 +158,16 @@ const Laporan: React.FC = () => {
 
     await exportToPDF(exportData);
   };
+
+  const incomeCategoryTotals = useMemo(() => {
+    const targetNames = ['W2-phone', 'Amel cake', 'Bagaskent gaming center'];
+    return targetNames.map((name) => ({
+      name,
+      total: transactions
+        .filter(t => t.type === 'income' && t.category === name)
+        .reduce((sum, t) => sum + t.amount, 0)
+    }));
+  }, [transactions]);
 
   const pieData = [
     { name: 'Pemasukan', value: totalIncome, fill: '#10B981' },
@@ -171,10 +183,15 @@ const Laporan: React.FC = () => {
             Visualisasi dan analisis laporan untuk {getMonthName(bulan)} {tahun}
           </p>
         </div>
-        <Button onClick={handleExportPDF} className="flex items-center gap-2 bg-[#D0021B] hover:bg-[#b00218] text-white">
-          <FileDown className="h-4 w-4" />
-          Export PDF
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExportPDF} className="flex items-center gap-2 bg-[#D0021B] hover:bg-[#b00218] text-white">
+            <FileDown className="h-4 w-4" />
+            Export PDF
+          </Button>
+          <Button onClick={() => exportTransactionsToXLS({ periode: `${getMonthName(bulan)} ${tahun}`, transactions, incomeCategoryTotals })} variant="outline" className="flex items-center gap-2">
+            Export Excel
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -377,6 +394,25 @@ const Laporan: React.FC = () => {
         </CardHeader>
         <CardContent className="overflow-x-auto max-h-[60vh] overflow-y-auto">
           <TransactionTable transactions={transactions} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Total Nominal per Kategori (Pemasukan)</CardTitle>
+          <CardDescription>
+            Tiga kategori utama pada periode ini
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {incomeCategoryTotals.map((item) => (
+              <div key={item.name} className="rounded-lg border border-gray-200 p-4 bg-white">
+                <p className="text-sm text-gray-600">{item.name}</p>
+                <p className="mt-1 text-xl font-bold text-green-600">{formatCurrency(item.total)}</p>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -74,6 +74,18 @@ const TransactionList: React.FC<TransactionListProps> = ({
     return target?.nama || `Target #${targetId}`;
   };
 
+  const categoryTotal = React.useMemo(() => {
+    if (categoryFilter === 'all') return 0;
+    return allTransactions
+      .filter(t => t.category === categoryFilter)
+      .reduce((sum, t) => sum + t.amount, 0);
+  }, [allTransactions, categoryFilter]);
+
+  const categoryCount = React.useMemo(() => {
+    if (categoryFilter === 'all') return 0;
+    return allTransactions.filter(t => t.category === categoryFilter).length;
+  }, [allTransactions, categoryFilter]);
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-6">
@@ -194,6 +206,19 @@ const TransactionList: React.FC<TransactionListProps> = ({
           </div>
         )}
       </div>
+      {categoryFilter !== 'all' && (
+        <div className="px-6 pb-6 pt-0">
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Transaksi</p>
+                <p className="text-base font-semibold text-gray-900">{categoryFilter}</p>
+              </div>
+              <div className="text-2xl font-bold text-red-700">{formatCurrency(categoryTotal)}</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
