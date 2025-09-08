@@ -120,7 +120,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                 <div className="flex items-center space-x-4 min-w-0">
                   <div className={`p-2 rounded-lg ${
                     transaction.type === 'income'
-                      ? 'bg-amber-100 text-amber-700'
+                      ? 'bg-red-100 text-red-700'
                       : transaction.type === 'transfer_to_target'
                       ? 'bg-blue-100 text-blue-600'
                       : 'bg-red-100 text-red-600'
@@ -155,7 +155,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                 <div className="flex items-center space-x-3 pl-2 flex-shrink-0">
                   <span className={`font-semibold text-sm sm:text-base ${
                     transaction.type === 'income'
-                      ? 'text-amber-700'
+                      ? 'text-red-700'
                       : transaction.type === 'transfer_to_target'
                       ? 'text-blue-600'
                       : 'text-red-600'
