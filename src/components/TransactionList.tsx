@@ -74,6 +74,11 @@ const TransactionList: React.FC<TransactionListProps> = ({
     return target?.nama || `Target #${targetId}`;
   };
 
+  const categoryCount = React.useMemo(() => {
+    if (categoryFilter === 'all') return 0;
+    return allTransactions.filter(t => t.category === categoryFilter).length;
+  }, [allTransactions, categoryFilter]);
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-6">
