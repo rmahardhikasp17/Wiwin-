@@ -183,10 +183,15 @@ const Laporan: React.FC = () => {
             Visualisasi dan analisis laporan untuk {getMonthName(bulan)} {tahun}
           </p>
         </div>
-        <Button onClick={handleExportPDF} className="flex items-center gap-2 bg-[#D0021B] hover:bg-[#b00218] text-white">
-          <FileDown className="h-4 w-4" />
-          Export PDF
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExportPDF} className="flex items-center gap-2 bg-[#D0021B] hover:bg-[#b00218] text-white">
+            <FileDown className="h-4 w-4" />
+            Export PDF
+          </Button>
+          <Button onClick={() => exportTransactionsToCSV({ periode: `${getMonthName(bulan)} ${tahun}`, transactions, incomeCategoryTotals })} variant="outline" className="flex items-center gap-2">
+            Export Excel
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
