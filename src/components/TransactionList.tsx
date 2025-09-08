@@ -207,7 +207,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                 <p className="text-sm text-gray-600">Total Transaksi</p>
                 <p className="text-base font-semibold text-gray-900">{categoryFilter}</p>
               </div>
-              <div className="text-2xl font-bold text-red-700">{categoryCount}</div>
+              <div className="text-2xl font-bold text-red-700">{formatCurrency(categoryTotal)}</div>
             </div>
           </div>
         </div>
