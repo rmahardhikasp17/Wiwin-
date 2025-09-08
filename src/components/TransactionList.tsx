@@ -194,6 +194,19 @@ const TransactionList: React.FC<TransactionListProps> = ({
           </div>
         )}
       </div>
+      {categoryFilter !== 'all' && (
+        <div className="px-6 pb-6 pt-0">
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Transaksi</p>
+                <p className="text-base font-semibold text-gray-900">{categoryFilter}</p>
+              </div>
+              <div className="text-2xl font-bold text-red-700">{categoryCount}</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
