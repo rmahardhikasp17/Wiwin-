@@ -146,6 +146,7 @@ const Laporan: React.FC = () => {
         totalAmount: cat.totalAmount,
         percentage: cat.percentage
       })),
+      incomeCategoryTotals: incomeCategoryTotals,
       activeTargets: activeTargets.map(tp => ({
         nama: tp.target.nama,
         nominalTarget: tp.target.nominalTarget,
