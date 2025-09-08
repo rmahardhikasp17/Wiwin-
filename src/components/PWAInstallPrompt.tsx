@@ -78,8 +78,8 @@ const PWAInstallPrompt: React.FC = () => {
     <div className="fixed bottom-4 left-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 md:left-auto md:right-4 md:max-w-sm">
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-3">
-          <div className="bg-amber-100 p-2 rounded-full">
-            <Download className="h-5 w-5 text-amber-700" />
+          <div className="bg-red-100 p-2 rounded-full">
+            <Download className="h-5 w-5 text-red-700" />
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">Install Gaji-ku</h3>
