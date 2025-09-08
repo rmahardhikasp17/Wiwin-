@@ -16,6 +16,7 @@ interface ExportData {
     totalAmount: number;
     percentage: number;
   }>;
+  incomeCategoryTotals?: Array<{ name: string; total: number }>;
   activeTargets?: Array<{
     nama: string;
     nominalTarget: number;
@@ -112,6 +113,22 @@ export const exportToPDF = async (data: ExportData) => {
       yPosition += 10;
 
       // Check if we need a new page
+      if (yPosition > 250) {
+        pdf.addPage();
+        yPosition = 30;
+      }
+    });
+    yPosition += 10;
+  }
+
+  // Income Category Totals (Top 3)
+  if (data.incomeCategoryTotals && data.incomeCategoryTotals.length > 0) {
+    addText('TOTAL NOMINAL PER KATEGORI (PEMASUKAN)', margin, yPosition, 14, true);
+    yPosition += 15;
+
+    data.incomeCategoryTotals.forEach(({ name, total }) => {
+      addText(`${name}: ${formatCurrency(total)}`, margin, yPosition);
+      yPosition += 10;
       if (yPosition > 250) {
         pdf.addPage();
         yPosition = 30;
