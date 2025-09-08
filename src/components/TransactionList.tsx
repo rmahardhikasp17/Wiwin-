@@ -74,6 +74,13 @@ const TransactionList: React.FC<TransactionListProps> = ({
     return target?.nama || `Target #${targetId}`;
   };
 
+  const categoryTotal = React.useMemo(() => {
+    if (categoryFilter === 'all') return 0;
+    return allTransactions
+      .filter(t => t.category === categoryFilter)
+      .reduce((sum, t) => sum + t.amount, 0);
+  }, [allTransactions, categoryFilter]);
+
   const categoryCount = React.useMemo(() => {
     if (categoryFilter === 'all') return 0;
     return allTransactions.filter(t => t.category === categoryFilter).length;
