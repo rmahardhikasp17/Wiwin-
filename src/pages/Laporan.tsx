@@ -188,7 +188,7 @@ const Laporan: React.FC = () => {
             <FileDown className="h-4 w-4" />
             Export PDF
           </Button>
-          <Button onClick={() => exportTransactionsToCSV({ periode: `${getMonthName(bulan)} ${tahun}`, transactions, incomeCategoryTotals })} variant="outline" className="flex items-center gap-2">
+          <Button onClick={() => exportTransactionsToXLS({ periode: `${getMonthName(bulan)} ${tahun}`, transactions, incomeCategoryTotals })} variant="outline" className="flex items-center gap-2">
             Export Excel
           </Button>
         </div>
