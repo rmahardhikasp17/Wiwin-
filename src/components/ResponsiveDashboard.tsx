@@ -142,13 +142,13 @@ const ResponsiveDashboard: React.FC = () => {
     if (percentage > 100) return { color: 'text-red-600', bg: 'bg-red-500', status: 'Melebihi batas!' };
     if (percentage === 100) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Mencapai batas' };
     if (percentage >= 80) return { color: 'text-orange-600', bg: 'bg-orange-500', status: 'Mendekati batas' };
-    return { color: 'text-amber-700', bg: 'bg-emerald-500', status: 'Dalam batas' };
+    return { color: 'text-red-700', bg: 'bg-emerald-500', status: 'Dalam batas' };
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
   }
@@ -157,23 +157,23 @@ const ResponsiveDashboard: React.FC = () => {
   return (
     <div className="space-y-4 sm:space-y-6 pb-20 lg:pb-0">
       {/* Welcome Message */}
-      <div className="bg-gradient-to-r from-neutral-900 to-amber-600 rounded-xl shadow-sm p-4 sm:p-6 text-white">
+      <div className="bg-gradient-to-r from-red-800 to-red-600 rounded-xl shadow-sm p-4 sm:p-6 text-white">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">Selamat datang, {userSettings.userName}! 👋</h1>
-          <p className="text-amber-100 mt-1 text-sm sm:text-base">Ringkasan keuangan Anda untuk {getFormattedSelection()}</p>
+          <p className="text-red-100 mt-1 text-sm sm:text-base">Ringkasan keuangan Anda untuk {getFormattedSelection()}</p>
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 xl:gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-3 lg:p-4 xl:p-6 border-l-4 border-amber-600">
+        <div className="bg-white rounded-xl shadow-sm p-3 lg:p-4 xl:p-6 border-l-4 border-red-600">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Pemasukan {getFormattedSelection()}</p>
               <p className="text-base md:text-xl xl:text-2xl font-bold text-gray-900 truncate">{formatCurrency(totalIncome)}</p>
             </div>
-            <div className="bg-amber-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
-              <ArrowUp className="h-5 w-5 sm:h-6 sm:w-6 text-amber-700" />
+            <div className="bg-red-100 p-2 sm:p-3 rounded-full flex-shrink-0 ml-2">
+              <ArrowUp className="h-5 w-5 sm:h-6 sm:w-6 text-red-700" />
             </div>
           </div>
         </div>
@@ -194,7 +194,7 @@ const ResponsiveDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Saldo</p>
-              <p className={`text-base md:text-xl xl:text-2xl font-bold truncate ${totalIncome - totalExpense >= 0 ? 'text-amber-700' : 'text-red-600'}`}>
+              <p className={`text-base md:text-xl xl:text-2xl font-bold truncate ${totalIncome - totalExpense >= 0 ? 'text-red-700' : 'text-red-600'}`}>
                 {formatCurrency(totalIncome - totalExpense)}
               </p>
             </div>
@@ -268,7 +268,7 @@ const ResponsiveDashboard: React.FC = () => {
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-semibold text-amber-700">
+                      <p className="text-sm font-semibold text-red-700">
                         {tp.percentage.toFixed(0)}%
                       </p>
                       <p className="text-xs text-gray-500">
@@ -348,7 +348,7 @@ const ResponsiveDashboard: React.FC = () => {
           </h2>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="w-full bg-gradient-to-r from-neutral-900 to-amber-600 text-white py-3 px-4 rounded-lg hover:from-emerald-600 hover:to-blue-700 transition-all duration-200 font-medium flex items-center justify-center space-x-2"
+            className="w-full bg-gradient-to-r from-red-800 to-red-600 text-white py-3 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 font-medium flex items-center justify-center space-x-2"
           >
             <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             <span className="text-sm sm:text-base">Tambah Transaksi Baru</span>
@@ -366,10 +366,10 @@ const ResponsiveDashboard: React.FC = () => {
                 <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                     <div className={`p-1.5 sm:p-2 rounded-full flex-shrink-0 ${
-                      transaction.type === 'income' ? 'bg-amber-100' : 'bg-red-100'
+                      transaction.type === 'income' ? 'bg-red-100' : 'bg-red-100'
                     }`}>
                       {transaction.type === 'income' ? (
-                        <ArrowUp className={`h-3 w-3 sm:h-4 sm:w-4 text-amber-700`} />
+                        <ArrowUp className={`h-3 w-3 sm:h-4 sm:w-4 text-red-700`} />
                       ) : (
                         <ArrowDown className={`h-3 w-3 sm:h-4 sm:w-4 text-red-600`} />
                       )}
@@ -381,7 +381,7 @@ const ResponsiveDashboard: React.FC = () => {
                   </div>
                   <div className="text-right flex-shrink-0 ml-2">
                     <p className={`font-semibold text-sm sm:text-base ${
-                      transaction.type === 'income' ? 'text-amber-700' : 'text-red-600'
+                      transaction.type === 'income' ? 'text-red-700' : 'text-red-600'
                     }`}>
                       {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                     </p>
