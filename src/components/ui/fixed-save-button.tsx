@@ -48,7 +48,7 @@ export const FixedSaveButton: React.FC<FixedSaveButtonProps> = ({
           form={formId}
           onClick={formId ? undefined : onSave}
           disabled={disabled || isLoading}
-          className="flex-1 bg-gradient-to-r from-neutral-900 to-amber-600 text-white py-3 hover:from-neutral-800 hover:to-amber-700 transition-all duration-200 font-medium text-sm sm:text-base"
+          className="flex-1 bg-gradient-to-r from-red-800 to-red-600 text-white py-3 hover:from-red-700 hover:to-red-800 transition-all duration-200 font-medium text-sm sm:text-base"
         >
           {isLoading ? (
             <>

@@ -56,7 +56,7 @@ const Transaksi: React.FC = () => {
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-neutral-900 to-amber-600 text-white px-4 py-2 rounded-lg hover:from-emerald-600 hover:to-blue-700 transition-all duration-200 font-medium shadow-lg w-full sm:w-auto"
+            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-red-800 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 font-medium shadow-lg w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             <span>Tambah Transaksi</span>

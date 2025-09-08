@@ -226,10 +226,10 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                     value="income"
                     checked={formData.type === 'income'}
                     onChange={(e) => handleTypeChange(e.target.value as 'income')}
-                    className="mr-3 text-amber-700"
+                    className="mr-3 text-red-700"
                     disabled={isLoading}
                   />
-                  <span className="text-amber-700 font-medium text-sm sm:text-base break-words whitespace-normal">
+                  <span className="text-red-700 font-medium text-sm sm:text-base break-words whitespace-normal">
                     💰 Pemasukan
                   </span>
                 </label>
@@ -279,7 +279,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600 bg-white"
+                      className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-red-600 focus:border-red-600 bg-white"
                       required
                       disabled={isLoading}
                     >
@@ -300,7 +300,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                           {filteredCategories.map((category, index) => (
                             <span
                               key={`category-badge-${category.id}-${index}`}
-                              className="inline-flex items-center px-2 py-1 rounded-full font-medium break-words bg-amber-100 text-amber-800 text-xs leading-tight"
+                              className="inline-flex items-center px-2 py-1 rounded-full font-medium break-words bg-red-100 text-red-800 text-xs leading-tight"
                               title={category.name}
                             >
                               <span className="break-words max-w-20 leading-tight">
@@ -332,7 +332,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                   type="text"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
+                  className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-red-600 focus:border-red-600"
                   placeholder="Contoh: Makan siang, Gaji bulanan, dll."
                   required={formData.type !== 'transfer_to_target'}
                   disabled={isLoading}
@@ -352,7 +352,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                   const formatted = formatInputNumber(e.target.value);
                   setFormData({ ...formData, amount: formatted });
                 }}
-                className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
+                className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-red-600 focus:border-red-600"
                 placeholder="0"
                 required
                 disabled={isLoading}
@@ -368,7 +368,7 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                 type="date"
                 value={formData.date}
                 onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
+                className="w-full px-3 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-red-600 focus:border-red-600"
                 required
                 disabled={isLoading}
               />
@@ -380,14 +380,14 @@ const TransactionFormModal: React.FC<TransactionFormModalProps> = ({
                 type="button"
                 onClick={onClose}
                 disabled={isLoading}
-                className="flex-1 px-4 py-3 text-sm sm:text-base font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-amber-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 text-sm sm:text-base font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Batal
               </button>
               <button
                 type="submit"
                 disabled={!isFormValid() || isLoading}
-                className="flex-1 bg-gradient-to-r from-neutral-900 to-amber-600 text-white py-3 px-4 rounded-lg hover:from-emerald-600 hover:to-blue-700 transition-all duration-200 font-medium text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="flex-1 bg-gradient-to-r from-red-800 to-red-600 text-white py-3 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 font-medium text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isLoading ? (
                   <>

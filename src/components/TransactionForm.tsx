@@ -66,9 +66,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onTransac
             value="income"
             checked={formData.type === 'income'}
             onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense', category: '' })}
-            className="mr-2 text-amber-700"
+            className="mr-2 text-red-700"
           />
-          <span className="text-amber-700 font-medium">Pemasukan</span>
+          <span className="text-red-700 font-medium">Pemasukan</span>
         </label>
         <label className="flex items-center">
           <input
@@ -90,7 +90,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onTransac
           type="number"
           value={formData.amount}
           onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-600 focus:border-red-600"
           placeholder="0"
           required
         />
@@ -104,7 +104,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onTransac
           type="text"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-600 focus:border-red-600"
           placeholder="Contoh: Makan siang"
           required
         />
@@ -118,7 +118,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onTransac
           <select
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-600 focus:border-red-600"
             required
           >
             <option value="">Pilih kategori pemasukan</option>
@@ -139,14 +139,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, onTransac
           type="date"
           value={formData.date}
           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-600 focus:border-amber-600"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-600 focus:border-red-600"
           required
         />
       </div>
 
       <button
         type="submit"
-        className="w-full bg-gradient-to-r from-neutral-900 to-amber-600 text-white py-2 px-4 rounded-lg hover:from-emerald-600 hover:to-blue-700 transition-all duration-200 font-medium"
+        className="w-full bg-gradient-to-r from-red-800 to-red-600 text-white py-2 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 font-medium"
       >
         Tambah Transaksi
       </button>
